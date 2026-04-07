@@ -9,6 +9,10 @@ import "jspsych/css/jspsych.css";
 import PreloadPlugin from "@jspsych/plugin-preload";
 import FullscreenPlugin from "@jspsych/plugin-fullscreen";
 import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
+import jsPsychPsychophysics from "@kurokida/jspsych-psychophysics";
+
+import { getRingPositions } from "../../functions/experiment/ringPositions.js";
+import { makeTriangleStimulus, makeColorPatchStimulus } from "../../functions/experiment/stimuli.js";
 
 // Since we load the following import after the jspsych/css/jspsych.css import, it always wins 
 // -> that way for modifications of the css we never need to kack jsPsych's own CSS
@@ -54,10 +58,39 @@ function makeTimeline(jsPsych, blurMonitor) {
   // Edit the pages in experiment/src/instructions.js.
   timeline.push(makeInstructions());
 
-  // ── Your experiment trials go here (between instructions and "Experiment Complete") ──
+  // ── Visual test: render stimuli on the invisible ring ──
+  // This is a temporary demo trial — will be replaced by real trial logic.
   timeline.push({
-    type: HtmlKeyboardResponsePlugin,
-    stimulus: "<p><strong>Experiment Running</strong></p><p>This is a placeholder for your experiment trials. They run in fullscreen with blur monitoring active. Press any key to continue.</p>",
+    type: jsPsychPsychophysics,
+    background_color: Settings.display.trialBackgroundColor,
+    //css_classes: "trial-bg",
+    response_type: "key",
+    choices: "ALL_KEYS",
+    stimuli: () => {
+      const { positions } = getRingPositions(6, 120);
+      const stims = [];
+
+      for (let i = 0; i < 3; i++) {
+        const orientation = Math.random() * 360;
+        stims.push(makeTriangleStimulus(positions[i].x, positions[i].y, orientation));
+      }
+
+      for (let i = 3; i < 6; i++) {
+        const hue = Math.random() * 360;
+        stims.push(makeColorPatchStimulus(positions[i].x, positions[i].y, hue));
+      }
+
+      stims.push({
+        obj_type: "cross",
+        origin_center: true,
+        startX: 0,
+        startY: 0,
+        line_length: 12,
+        line_color: "white",
+      });
+
+      return stims;
+    },
   });
 
   timeline.push({
