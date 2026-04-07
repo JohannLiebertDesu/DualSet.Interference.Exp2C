@@ -1,0 +1,24 @@
+<!-- One of three independent component pages in this study (consent → experiment → debrief).
+     Each component loads fresh in the browser — the previous page is completely destroyed.
+     JATOS orchestrates the sequence; each page has no knowledge the others exist.
+     jsPsych will automatically create its own display container inside <body> — no target div needed. -->
+<!--
+    window                          ← the entire browser tab (destroyed between components)
+      └─ document                   ← the HTML page
+          ├─ document.head (<head>) ← metadata, scripts, styles
+          └─ document.body (<body>) ← visible content
+                  └─ [jsPsych's auto-created div]
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debrief</title>
+  </head>
+  <body>
+    <!-- type="module" tells the browser this script uses import/export syntax.
+         Without it, the browser wouldn't know how to handle the import statements in main.js -->
+    <script type="module" src="./debrief/src/main.js"></script>
+  </body>
+</html>

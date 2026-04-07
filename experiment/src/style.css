@@ -1,0 +1,20 @@
+/* ──────────────────────────────────────────────────────────────
+   Experiment-specific styles — imports the shared template base,
+   then adds overrides needed only during the experiment component
+   (fullscreen, stimuli, etc.).
+   ────────────────────────────────────────────────────────────── */
+@import "../../styles/common.css";
+
+/* ── Trial background ─────────────────────────────────────────
+   Apply to experiment/practice trials via css_classes: "trial-bg".
+   jsPsych adds this class to .jspsych-display-element for the
+   duration of the trial and removes it automatically afterwards.
+   Instructions, breaks, and other non-trial screens keep the
+   default off-white from common.css.
+
+   Usage:
+     { type: SomePlugin, stimulus: "...", css_classes: "trial-bg" }
+   ────────────────────────────────────────────────────────────── */
+.trial-bg {
+  background: var(--trial-bg, oklch(0.6 0 0));
+}

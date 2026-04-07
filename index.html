@@ -1,0 +1,18 @@
+<!-- Dev-only convenience redirect.
+     Vite doesn't know which component is "first" — it just serves files by URL.
+     Without this file, visiting http://localhost:5173/ shows a blank page because
+     there's nothing at the root. This redirect sends you straight to consent/.
+
+     Not listed in vite.config.js rollupOptions.input, so it's excluded from
+     the production build and has no effect on JATOS deployment. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- meta http-equiv="refresh" is a pure-HTML redirect — no JavaScript needed.
+         content="0" means redirect immediately; url=consent/ is the target. -->
+    <meta http-equiv="refresh" content="0;url=consent.html" />
+    <title>Redirecting…</title>
+  </head>
+  <body></body>
+</html>

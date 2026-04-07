@@ -1,0 +1,415 @@
+/* ──────────────────────────────────────────────────────────────
+   Template base styles — loaded AFTER jspsych.css so these
+   always win. Shared across all components; experiment/src/
+   style.css imports this then adds its own overrides.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Page & background ── */
+.jspsych-display-element {
+  background: #fafafa;
+}
+
+/* ── Typography ── */
+.jspsych-content {
+  max-width: 720px;
+  padding: 0 1.5rem;
+  color: #2c2c2c;
+}
+
+.jspsych-content p {
+  font-size: 1.15rem;
+  line-height: 1.75;
+  margin: 0.75em 0;
+}
+
+.jspsych-content strong {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.jspsych-content h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.jspsych-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.jspsych-content h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+/* ── Buttons ── */
+.jspsych-btn {
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.6rem 1.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #2c2c2c;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+@media (hover: hover) {
+  .jspsych-btn:hover {
+    background: #f5f5f5;
+    border-color: #aaa;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.jspsych-btn:active {
+  background: #eee;
+  border-color: #999;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Buttons — disabled state ── */
+.jspsych-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Lists ── */
+.jspsych-content ul,
+.jspsych-content ol {
+  text-align: left;
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.jspsych-content li {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 0.35em;
+}
+
+/* ── Break screen ── */
+.break-screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.break-screen-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5em;
+}
+
+.break-screen p {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #444;
+  margin: 0.5em 0;
+}
+
+.break-screen-hint {
+  font-size: 0.95rem !important;
+  color: #888 !important;
+  margin-top: 1.25em !important;
+}
+
+/* Block progress bar */
+.break-progress-track {
+  width: 100%;
+  height: 10px;
+  background: #e5e5e5;
+  border-radius: 5px;
+  margin: 1.25rem 0;
+  overflow: hidden;
+}
+
+.break-progress-fill {
+  height: 100%;
+  background: #5a9a6a;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+/* ── Abort messages (shown by abortExperiment) ── */
+.abort-message {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.abort-message-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #c0392b;
+  margin-bottom: 0.75em;
+}
+
+.abort-message p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Instructions — flexible layouts for text, images, or both.
+   Used with @jspsych/plugin-instructions. Each page is an HTML
+   string; wrap content in .instructions-page for consistent
+   sizing. Use .instructions-slide for full-page images (PPTX
+   exports, GIFs) or .instructions-figure for smaller images
+   mixed with text.
+   ────────────────────────────────────────────────────────────── */
+.instructions-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+
+/* Left-aligned text variant — use on pages with longer paragraphs */
+.instructions-page.text-left {
+  text-align: left;
+}
+
+.instructions-page p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 0.6em 0;
+  color: #2c2c2c;
+}
+
+.instructions-page h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 0.75em;
+  margin-bottom: 0.4em;
+}
+
+/* Full-page slide image (PPTX export, GIF, etc.) — fills most of the viewport */
+.instructions-page img.instructions-slide {
+  max-width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+/* Smaller figure image mixed with text */
+.instructions-page img.instructions-figure {
+  max-width: 90%;
+  max-height: 40vh;
+  object-fit: contain;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+/* Caption text below an image */
+.instructions-page .instructions-caption {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: -0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Questionnaire — header & lead text inside SurveyJS
+   ────────────────────────────────────────────────────────────── */
+.questionnaire-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.25em;
+}
+
+.questionnaire-lead {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Consent & debrief — left-aligned document-style layouts
+   ────────────────────────────────────────────────────────────── */
+.consent-form {
+  text-align: left;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 0.5rem 0 1rem;
+}
+
+.consent-form h1 {
+  text-align: center;
+  font-size: 1.55rem;
+  margin-bottom: 0.15em;
+}
+
+.consent-lead {
+  text-align: center;
+  color: #777;
+  font-size: 0.95rem !important;
+  font-style: italic;
+  margin-bottom: 1.5rem !important;
+}
+
+.consent-section {
+  margin-bottom: 1rem;
+}
+
+.consent-section h2 {
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.4rem;
+  margin-top: 1rem;
+}
+
+.consent-section p,
+.consent-section ul {
+  font-size: 1rem !important;
+  line-height: 1.7;
+  color: #444;
+}
+
+/* Checkbox agreement panel */
+.consent-agreements {
+  background: #f2f2f2;
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #333;
+}
+
+.consent-checkbox:last-child {
+  margin-bottom: 0;
+}
+
+.consent-checkbox input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  accent-color: #4a7c59;
+  cursor: pointer;
+}
+
+/* Contact / footnote line */
+.consent-contact {
+  font-size: 0.85rem !important;
+  color: #999 !important;
+  margin-top: 1.5rem !important;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* ── Progress bar ── */
+#jspsych-progressbar-container {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+#jspsych-progressbar-inner {
+  background: #888;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Overlay — used by blurMonitor.js for tab-leave warnings
+   ────────────────────────────────────────────────────────────── */
+.template-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.82);
+  color: #f0f0f0;
+  font-family: "Open Sans", "Arial", sans-serif;
+}
+
+.template-overlay-card {
+  text-align: center;
+  max-width: 520px;
+  padding: 2.5rem 2rem;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.template-overlay-card h2 {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  font-size: 1.35rem;
+}
+
+.template-overlay-card p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0.5em 0;
+  color: #ccc;
+}
+
+.template-overlay-card .overlay-btn {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.55rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.template-overlay-card .overlay-btn:active {
+  transform: scale(0.97);
+}
+
+/* Warning variant (amber) */
+.template-overlay--warning .template-overlay-card h2 {
+  color: #f0ad4e;
+}
+
+.template-overlay--warning .overlay-btn {
+  background: #f0ad4e;
+  color: #1e1e1e;
+}
+
+@media (hover: hover) {
+  .template-overlay--warning .overlay-btn:hover {
+    background: #f5c169;
+  }
+}
