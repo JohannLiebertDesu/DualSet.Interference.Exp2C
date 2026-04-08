@@ -76,7 +76,7 @@ function makeTimeline(jsPsych, blurMonitor) {
 
       for (let i = 0; i < 3; i++) {
         const orientation = Math.random() * 360;
-        stims.push(makeTriangleStimulus(positions[i].x, positions[i].y, orientation));
+        stims.push(makeOrientedTriangleStimulus(positions[i].x, positions[i].y, orientation));
       }
 
       for (let i = 3; i < 6; i++) {

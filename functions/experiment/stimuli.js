@@ -25,7 +25,7 @@
  * @param {string} [opts.lineColor='oklch(0.75 0 0)']  Stroke colour.
  * @param {number} [opts.lineWidth=1]
  */
-export function makeTriangleStimulus(x, y, orientationDeg, opts = {}) {
+export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
   const {
     base = 16,
     height = 28,
@@ -56,6 +56,7 @@ export function makeTriangleStimulus(x, y, orientationDeg, opts = {}) {
 
   return {
     obj_type: "manual",
+    stim_type: "oriented_triangle",
     origin_center: true,
     startX: x,
     startY: y,
@@ -101,6 +102,7 @@ export function makeColorPatchStimulus(x, y, hueDeg, opts = {}) {
 
   return {
     obj_type: "circle",
+    stim_type: "color_patch",
     origin_center: true,
     startX: x,
     startY: y,
