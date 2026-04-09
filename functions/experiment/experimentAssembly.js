@@ -93,11 +93,11 @@ function generatePracticeSpecs() {
  * @returns {{ practice: object[], experimental: object[] }}
  *          Each array contains flat jsPsych trial objects (4 per spec).
  */
-export function assembleExperiment(nBlocks = 8, trialsPerBlock = 40) {
+export function assembleExperiment(jsPsych, nBlocks = 8, trialsPerBlock = 40) {
   // Practice: 1 trial per condition, shuffled, blockID = 0
   const practiceSpecs = shuffle(generatePracticeSpecs());
   const practice = practiceSpecs.flatMap((spec, i) =>
-    assembleTrialSequence(spec, i, 0, true)
+    assembleTrialSequence(spec, i, 0, true, jsPsych)
   );
 
   // Experimental: generate all specs, shuffle, split into mini-blocks
@@ -112,7 +112,7 @@ export function assembleExperiment(nBlocks = 8, trialsPerBlock = 40) {
     );
 
     for (const spec of blockSpecs) {
-      experimental.push(...assembleTrialSequence(spec, trialID++, block + 1, false));
+      experimental.push(...assembleTrialSequence(spec, trialID++, block + 1, false, jsPsych));
     }
   }
 

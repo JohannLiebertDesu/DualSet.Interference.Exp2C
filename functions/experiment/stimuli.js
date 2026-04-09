@@ -28,12 +28,11 @@ import { Settings } from "../../ExperimentSettings.js";
  * @param {number} [opts.lineWidth]
  */
 export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
-  const { lightness, chroma } = Settings.stimuli;
   const {
     base = 28,
     height = 50,
-    fillColor = `oklch(${lightness} 0 0)`,
-    lineColor = `oklch(${lightness} 0 0)`,
+    lightness = Settings.stimuli.lightness,
+    chroma = Settings.stimuli.chroma,
     lineWidth = 1,
   } = opts;
 
@@ -49,21 +48,26 @@ export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
     { x: halfBase, y: baseY },      // base-right
   ];
 
-  const rad = (orientationDeg * Math.PI) / 180;
-  const cosA = Math.cos(rad);
-  const sinA = Math.sin(rad);
-  const rotated = unrotated.map((p) => ({
-    x: p.x * cosA - p.y * sinA,
-    y: p.x * sinA + p.y * cosA,
-  }));
-
   return {
     obj_type: "manual",
     stim_type: "oriented_triangle",
     origin_center: true,
     startX: x,
     startY: y,
+    orientationDeg: orientationDeg,
+    fill_color: `oklch(${lightness} 0 0)`,
+    line_color: `oklch(${lightness} 0 0)`,
+
     drawFunc: (stimulus, canvas, ctx) => {
+
+      const rad = (stimulus.orientationDeg * Math.PI) / 180;
+      const cosA = Math.cos(rad);
+      const sinA = Math.sin(rad);
+      const rotated = unrotated.map((p) => ({
+        x: p.x * cosA - p.y * sinA,
+        y: p.x * sinA + p.y * cosA,
+      }));
+
       ctx.save();
       ctx.translate(stimulus.currentX, stimulus.currentY);
 
@@ -73,10 +77,10 @@ export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
       ctx.lineTo(rotated[2].x, rotated[2].y);
       ctx.closePath();
 
-      ctx.fillStyle = fillColor;
+      ctx.fillStyle = stimulus.fill_color;
       ctx.fill();
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = lineColor;
+      ctx.strokeStyle = stimulus.line_color;
       ctx.stroke();
 
       ctx.restore();

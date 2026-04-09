@@ -62,7 +62,7 @@ function makeTimeline(jsPsych, blurMonitor) {
   timeline.push(makeInstructions());
 
   // ── Experiment trials ──
-  const { practice, experimental } = assembleExperiment();
+  const { practice, experimental } = assembleExperiment(jsPsych);
 
   // Practice block
   timeline.push(...practice);

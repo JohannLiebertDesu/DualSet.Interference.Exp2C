@@ -33,11 +33,15 @@ export const Settings = {
 
   // ── Display ─────────────────────────────────────────────────────────────────
   display: {
-    // Background colour for experiment/practice trials.
+    // Background colour for experiment/practice trials, specified as OKLCH components.
     // Standard mid-grey is the convention in vision science — neutral adaptation state
-    // for luminance contrast. OKLCH 0.6 lightness, zero chroma = perceptually uniform grey.
-    // Any CSS colour format works (hex, rgb, hsl, oklch, named).
-    trialBackgroundColor: "oklch(0.6 0 0)",
+    // for luminance contrast. Lightness 0.6, zero chroma = perceptually uniform grey.
+    backgroundLightness: 0.6,
+    backgroundChroma: 0,
+    backgroundHue: 0,
+    get trialBackgroundColor() {
+      return `oklch(${this.backgroundLightness} ${this.backgroundChroma} ${this.backgroundHue})`;
+    },
   },
 
   // ── Trial Timing ───────────────────────────────────────────────────────────
