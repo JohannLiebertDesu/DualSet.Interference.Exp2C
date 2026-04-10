@@ -33,11 +33,23 @@ import { ProlificFailCodes } from "./prolificFailCodes.js";
 function makeTimeline(jsPsych, blurMonitor) {
   const timeline = [];
 
-  // timeline.push({
-  //   type: PreloadPlugin,
-  //   // files put into public/assets/... can be referenced here, like so:
-  //   images: ["assets/instructions/Slide1.gif"],
-  // });
+  timeline.push({
+    type: PreloadPlugin,
+    max_load_time: 30000,
+    show_progress_bar: true,
+    images: [
+      "assets/3_ExampleStimuli.png",
+      "assets/3_1_ExampleStimuli.png",
+      "assets/FixationCross.png",
+      "assets/ColorResponseWheelEmpty.png",
+      "assets/ColorResponseWheelPopulated.png",
+      "assets/OrientationResponseWheelEmpty.png",
+      "assets/OrientationResponseWheelPopulated.png",
+      "assets/happy.svg",
+      "assets/medium.svg",
+      "assets/sad.svg",
+    ],
+  });
 
   // NOTE: When the browser later exits fullscreen (e.g. page navigation to debrief),
   // it briefly flashes a cached snapshot of the page from when fullscreen was entered

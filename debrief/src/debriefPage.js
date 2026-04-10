@@ -18,36 +18,42 @@ export function debriefPageHTML(settings) {
 
       <section class="consent-section">
         <h2>What was this study about?</h2>
-        <!-- EDIT: Add study-specific details (e.g., hypotheses, manipulations)
-             to the general description below. If you used deception or withheld
-             information during consent, this is where you disclose it. -->
         <p>
-          This experiment is part of ongoing research in cognitive psychology.
-          We are interested in understanding how human perception and memory
-          work — how people take in, store, and retrieve information, and how
-          individuals differ from one another in these abilities. To study this
-          reliably, we need large amounts of behavioural data from many
-          participants, which is why your contribution is valuable.
+          In this experiment, we investigated how visual working memory handles
+          different types of features — specifically, colours and orientations —
+          when they appear on separate objects in a brief display.
+        </p>
+        <p>
+          Previous research has debated whether memory for different feature
+          dimensions (like colour and orientation) relies on shared or independent
+          resources. Some studies found that adding items of one type does not
+          interfere with memory for the other type, suggesting independence. Other
+          studies found partial interference when features belong to spatially
+          separated objects, suggesting some shared capacity.
+        </p>
+        <p>
+          By varying the number and mix of colour and orientation items across
+          trials, we aim to measure whether and how much cross-dimensional
+          interference occurs in an online setting.
         </p>
       </section>
 
       <section class="consent-section">
         <h2>Why does this matter?</h2>
         <p>
-          Beyond advancing our general understanding of the mind, findings from
-          research like this are used in clinical diagnostics and interventions
-          — for example, to detect and track cognitive changes in neurological
-          conditions. They also inform the evaluation of competence and aptitude
-          for different jobs and skills, helping to develop fairer and more
-          accurate assessments.
+          Understanding the structure of visual working memory helps us build
+          more accurate models of how the mind organises and maintains
+          information. These findings can inform clinical diagnostics — for
+          example, detecting subtle cognitive changes in neurological conditions
+          — as well as the design of visual displays and interfaces.
         </p>
       </section>
 
       <section class="consent-section">
         <h2>Further reading</h2>
-        <!-- EDIT: Add relevant references, or remove this section if not needed. -->
         <ul>
-          <li>[Author et al. (Year). Title. <em>Journal</em>. <a href="#">https://doi.org/...</a>]</li>
+          <li>Wang, B., Cao, X., Theeuwes, J., Olivers, C. N., & Wang, Z. (2017). Separate capacities for storing different features in visual working memory. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 43</em>(2), 226–236.</li>
+          <li>Markov, Y. A., Tiurina, N. A., & Utochkin, I. S. (2019). Different features are stored independently in visual working memory but mediated by object-based representations. <em>Acta Psychologica, 197</em>, 52–63.</li>
         </ul>
       </section>
 

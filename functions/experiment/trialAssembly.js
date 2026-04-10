@@ -272,8 +272,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
       trialID,
       blockID,
       practice: true,
-      response_type: "key",
-      choices: "ALL_KEYS",
+      choices: "NO_KEYS",
       trial_duration: 3000,
       stimuli: [feedbackWheel, frozenProbe, correctMarker, makeFixationCross()],
 
@@ -283,7 +282,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
 
         // Pick smiley based on error magnitude
         let smileyPath;
-        if (absError < 20) {
+        if (absError < 25) {
           smileyPath = "assets/happy.svg";
         } else if (absError < 50) {
           smileyPath = "assets/medium.svg";
@@ -291,11 +290,11 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
           smileyPath = "assets/sad.svg";
         }
 
-        // Show smiley as an image element above the canvas
+        // Show smiley above the canvas
         const img = document.createElement("img");
         img.src = smileyPath;
-        img.style.cssText = "position:fixed; top:10%; left:50%; transform:translateX(-50%); height:8vh; z-index:1000;";
         img.id = "feedback-smiley";
+        img.style.cssText = "position:fixed; top:10%; left:50%; transform:translateX(-50%); height:8vh; z-index:1000;";
         document.body.appendChild(img);
       },
 

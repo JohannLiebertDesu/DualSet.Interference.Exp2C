@@ -107,8 +107,15 @@ export function generateTrial(condition, probeIndex) {
   // ringPosition determines which slot on the invisible ring each item occupies,
   // independent of its index in the items array.
   if (condition.nIntrude === 0) {
-    // Pure condition (3-only, 4-only, 6-only): sequential positions.
-    items.forEach((item, i) => { item.ringPosition = i; });
+    // Pure condition (3-only, 4-only, 6-only): randomized positions so that
+    // sequential feature values from the sampling algorithm don't map onto
+    // adjacent ring slots (which would create a visible gradient).
+    const slots = Array.from({ length: totalItems }, (_, i) => i);
+    for (let i = slots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [slots[i], slots[j]] = [slots[j], slots[i]];
+    }
+    items.forEach((item, i) => { item.ringPosition = slots[i]; });
 
   } else if (condition.nPrimary === 3 && condition.nIntrude === 1) {
     // 3+1: intruder randomly assigned to one of the 4 slots.

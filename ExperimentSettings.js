@@ -68,14 +68,14 @@ export const Settings = {
   study: {
     // What the study examines — shown under "What this study is about".
     description:
-      "This study examines [brief description of what is being studied].",
+      "This study examines how people remember different visual features, such as colours and orientations, when they appear together in a brief display.",
 
     // What participants will do — shown directly after the description.
     task:
-      "Your task will be to [brief description of what participants do].",
+      "Your task will be to memorise a set of briefly presented items and then report one of them using a response wheel.",
 
     // Approximate duration — shown under "Duration & compensation".
-    duration: "1 hour",
+    duration: "30–40 minutes",
 
     // Compensation text (non-Prolific). Prolific overrides this automatically.
     compensation: "1 participant subject hour",

@@ -10,7 +10,8 @@
 - [x] Store firstClickRt in recall data
 - [x] Instructions (replace template placeholder)
 - [x] Transition screen between practice and main experiment
-- [ ] Practice feedback
-- [ ] Check load-time behaviour at experiment start (330 trials assembled upfront — may be slow on some browsers)
-- [ ] Consent/debrief content (study-specific wording)
-- [ ] ExperimentSettings.js study info (description, task, duration)
+- [x] Practice feedback
+- [ ] Final check on error calculation (selectedAngle vs probeFeatureValue, wheelOffset handling per dimension)
+- [x] Check load-time behaviour at experiment start (added preload with 30s timeout for all assets)
+- [x] Consent/debrief content (study-specific wording)
+- [x] ExperimentSettings.js study info (description, task, duration)
