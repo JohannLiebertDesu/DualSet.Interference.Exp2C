@@ -39,11 +39,12 @@ const { fixationDurationMs, sampleDurationPerItemMs, retentionDurationMs } = Set
  * @returns {object[]} Array of psychophysics stimulus objects.
  */
 function buildStimuliFromSpec(items, positions) {
-  return items.map((item, i) => {
+  return items.map((item) => {
+    const pos = positions[item.ringPosition];
     if (item.dimension === "orientation") {
-      return makeOrientedTriangleStimulus(positions[i].x, positions[i].y, item.featureValue);
+      return makeOrientedTriangleStimulus(pos.x, pos.y, item.featureValue);
     } else {
-      return makeColorPatchStimulus(positions[i].x, positions[i].y, item.featureValue);
+      return makeColorPatchStimulus(pos.x, pos.y, item.featureValue);
     }
   });
 }
@@ -57,6 +58,7 @@ function buildStimuliFromSpec(items, positions) {
  * @param {number} trialID    Unique trial number.
  * @param {number} blockID    Block this trial belongs to.
  * @param {boolean} practice  Whether this is a practice trial.
+ * @param {object} jsPsych    The active jsPsych instance (for live stimulus access in recall).
  * @param {number} [ringRadius=120]  Ring radius in pixels.
  * @returns {object[]} Array of 4 jsPsych trial objects (fixation, sample, retention, recall).
  */
@@ -120,7 +122,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
   //    second click confirms. Stimuli created here (not in a function) so
   //    getCurrentTrial().stimuli[n].instance works in mouse handlers.
 
-  const probePos = positions[spec.probeIndex];
+  const probePos = positions[spec.items[spec.probeIndex].ringPosition];
   const wheelOffset = Math.random() * 360;
   const { lightness, chroma } = Settings.stimuli;
 

@@ -83,7 +83,8 @@ export function generateTrial(condition, probeIndex) {
   const colorValues = nColor > 0 ? sampleFeatureValues(nColor, MIN_DISTANCE_DEG) : [];
 
   // Build item list: primary items first, then intruders.
-  // Each item knows its dimension, feature value, and position index.
+  // Array order determines logical structure (probeIndex refers to this order).
+  // ringPosition (assigned below) determines spatial placement on screen.
   const items = [];
 
   if (condition.primary === "orientation") {
@@ -99,6 +100,35 @@ export function generateTrial(condition, probeIndex) {
     }
     for (let i = 0; i < condition.nIntrude; i++) {
       items.push({ dimension: "orientation", featureValue: orientationValues[i] });
+    }
+  }
+
+  // Assign ring positions based on condition type.
+  // ringPosition determines which slot on the invisible ring each item occupies,
+  // independent of its index in the items array.
+  if (condition.nIntrude === 0) {
+    // Pure condition (3-only, 4-only, 6-only): sequential positions.
+    items.forEach((item, i) => { item.ringPosition = i; });
+
+  } else if (condition.nPrimary === 3 && condition.nIntrude === 1) {
+    // 3+1: intruder randomly assigned to one of the 4 slots.
+    // Primary items fill the remaining 3 slots.
+    const intruderSlot = Math.floor(Math.random() * totalItems);
+    const primarySlots = [0, 1, 2, 3].filter(s => s !== intruderSlot);
+    for (let i = 0; i < condition.nPrimary; i++) {
+      items[i].ringPosition = primarySlots[i];
+    }
+    items[condition.nPrimary].ringPosition = intruderSlot;
+
+  } else if (condition.nPrimary === 3 && condition.nIntrude === 3) {
+    // 3+3: interleaved (alternating primary, intruder around the ring).
+    // Randomly assign primary to even or odd slots to avoid a fixed pattern.
+    const primaryAtEven = Math.random() < 0.5;
+    for (let i = 0; i < condition.nPrimary; i++) {
+      items[i].ringPosition = primaryAtEven ? i * 2 : i * 2 + 1;
+    }
+    for (let i = 0; i < condition.nIntrude; i++) {
+      items[condition.nPrimary + i].ringPosition = primaryAtEven ? i * 2 + 1 : i * 2;
     }
   }
 
