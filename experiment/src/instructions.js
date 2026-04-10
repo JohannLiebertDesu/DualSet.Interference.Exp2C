@@ -20,6 +20,7 @@
  * @returns {object} A jsPsych trial configuration for the instructions plugin
  */
 import InstructionsPlugin from "@jspsych/plugin-instructions";
+import HtmlButtonResponsePlugin from "@jspsych/plugin-html-button-response";
 
 export function makeInstructions() {
   return {
@@ -144,5 +145,26 @@ export function makeInstructions() {
     button_label_previous: "Previous",
     button_label_next: "Next",
     button_label_finish: "Begin",
+  };
+}
+
+export function makePracticeTransition() {
+  return {
+    type: HtmlButtonResponsePlugin,
+    stimulus: `
+      <div class="instructions-page">
+        <h2>Practice Complete</h2>
+        <p>
+          You have completed the practice trials.
+          The main experiment will now begin.
+        </p>
+        <p>
+          From now on, you will <strong>not</strong> receive feedback after each trial.
+          There will be short breaks between blocks.
+        </p>
+        <p>Press the button below when you are ready to start.</p>
+      </div>
+    `,
+    choices: ["Start Experiment"],
   };
 }

@@ -158,22 +158,20 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
     let deg = Math.atan2(dy, dx) * 180 / Math.PI;
     if (deg < 0) deg += 360;
 
-    // The mouse only knows the screen position, not which hue/orientation is
-    // displayed there. Adding wheelOffset converts from screen angle to feature
-    // value — because the wheel drawing shifted all values by that offset.
-    // E.g. if offset=30 and mouse is at 0° (right), the hue there is 30, not 0.
-    selectedAngle = (deg + wheelOffset + 360) % 360;
-
     if (spec.probeDimension === "orientation") {
+      // Orientation wheel has no visual offset — the raw atan2 angle
+      // IS the orientation value. No wheelOffset conversion needed.
+      selectedAngle = deg;
       live.fill_color = `oklch(${lightness} 0 0)`;
       live.line_color = `oklch(${lightness} 0 0)`;
-      // The preview triangle points where the mouse is (raw screen angle),
-      // not at the offset-adjusted value. The +90° in drawFunc converts from
-      // atan2 convention (0°=right) to the triangle's native up-pointing apex.
+      // The +90° in drawFunc converts from atan2 (0°=right) to the
+      // triangle's native up-pointing apex.
       live.orientationDeg = deg;
     } else {
-      // For color, selectedAngle IS the hue to display — the offset is already
-      // baked in, matching what's shown on the wheel at that screen position.
+      // Color wheel shifts hues by wheelOffset: screen position i shows
+      // hue (i + offset). Adding wheelOffset converts from screen angle
+      // to the actual hue value.
+      selectedAngle = (deg + wheelOffset + 360) % 360;
       live.fill_color = `oklch(${lightness} ${chroma} ${selectedAngle})`;
       live.line_color = `oklch(${lightness} ${chroma} ${selectedAngle})`;
     }
@@ -222,5 +220,111 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
     data: { ...sharedData, phase: "recall" },
   });
 
-  return [fixation, sample, retention, recall];
+  const sequence = [fixation, sample, retention, recall];
+
+  // 5. Feedback — practice trials only.
+  //    Re-draws the wheel and the participant's response (frozen), adds a
+  //    marker at the correct position, and shows a smiley based on error.
+  if (practice) {
+    // Correct answer's screen angle on the wheel.
+    // Color wheel: maps screen position i to hue (i + wheelOffset), so reverse
+    //   with screen position = featureValue - wheelOffset.
+    // Orientation wheel: no visual offset, so screen position = featureValue.
+    const correctScreenAngle = spec.probeDimension === "color"
+      ? ((spec.probeFeatureValue - wheelOffset + 360) % 360) * Math.PI / 180
+      : (spec.probeFeatureValue * Math.PI) / 180;
+
+    // Pre-build the probe stimulus frozen at the selected value.
+    // We clone it so it doesn't interfere with the recall trial's probe.
+    const frozenProbe = spec.probeDimension === "color"
+      ? makeColorPatchStimulus(probePos.x, probePos.y, 0, { lightness: Settings.display.backgroundLightness, chroma: 0 })
+      : makeOrientedTriangleStimulus(probePos.x, probePos.y, 0, { lightness: Settings.display.backgroundLightness });
+
+    const feedbackWheel = spec.probeDimension === "color"
+      ? createColorWheel(probePos.x, probePos.y, { offset: wheelOffset })
+      : createOrientationWheel(probePos.x, probePos.y, { offset: wheelOffset });
+
+    // Marker for the correct answer (drawn as a manual stimulus)
+    const correctMarker = {
+      obj_type: "manual",
+      origin_center: true,
+      startX: probePos.x,
+      startY: probePos.y,
+      drawFunc: (stimulus, canvas, ctx) => {
+        const cx = stimulus.currentX;
+        const cy = stimulus.currentY;
+        const markerRadius = (Settings.responseWheel.outerRadius + Settings.responseWheel.innerRadius) / 2;
+        const mx = cx + markerRadius * Math.cos(correctScreenAngle);
+        const my = cy + markerRadius * Math.sin(correctScreenAngle);
+
+        // Draw a white circle with black outline as the correct-answer marker
+        ctx.beginPath();
+        ctx.arc(mx, my, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      },
+    };
+
+    const feedback = makePsychophysicsTrial({
+      trialID,
+      blockID,
+      practice: true,
+      response_type: "key",
+      choices: "ALL_KEYS",
+      trial_duration: 3000,
+      stimuli: [feedbackWheel, frozenProbe, correctMarker, makeFixationCross()],
+
+      on_start: () => {
+        // Freeze the probe at the participant's selected value
+        const absError = Math.abs(signedAngleDiff(selectedAngle ?? 0, spec.probeFeatureValue));
+
+        // Pick smiley based on error magnitude
+        let smileyPath;
+        if (absError < 20) {
+          smileyPath = "assets/happy.svg";
+        } else if (absError < 50) {
+          smileyPath = "assets/medium.svg";
+        } else {
+          smileyPath = "assets/sad.svg";
+        }
+
+        // Show smiley as an image element above the canvas
+        const img = document.createElement("img");
+        img.src = smileyPath;
+        img.style.cssText = "position:fixed; top:10%; left:50%; transform:translateX(-50%); height:8vh; z-index:1000;";
+        img.id = "feedback-smiley";
+        document.body.appendChild(img);
+      },
+
+      on_load: () => {
+        // Set the frozen probe to the selected value
+        const live = jsPsych.getCurrentTrial().stimuli[1].instance;
+        if (selectedAngle !== undefined) {
+          if (spec.probeDimension === "orientation") {
+            live.fill_color = `oklch(${lightness} 0 0)`;
+            live.line_color = `oklch(${lightness} 0 0)`;
+            live.orientationDeg = selectedAngle;
+          } else {
+            live.fill_color = `oklch(${lightness} ${chroma} ${selectedAngle})`;
+            live.line_color = `oklch(${lightness} ${chroma} ${selectedAngle})`;
+          }
+        }
+      },
+
+      on_finish: () => {
+        // Remove the smiley overlay
+        const smiley = document.getElementById("feedback-smiley");
+        if (smiley) smiley.remove();
+      },
+
+      data: { ...sharedData, phase: "feedback" },
+    });
+
+    sequence.push(feedback);
+  }
+
+  return sequence;
 }

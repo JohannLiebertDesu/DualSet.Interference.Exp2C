@@ -27,7 +27,7 @@ import { checkEnrollmentCap } from "../../functions/global/enrollmentCap.js";
 import { assignCondition } from "../../functions/global/conditionAssignment.js";
 import { makeScreenCheck } from "../../functions/global/screenCheck.js";
 import { createBlurMonitor } from "../../functions/global/blurMonitor.js";
-import { makeInstructions } from "./instructions.js";
+import { makeInstructions, makePracticeTransition } from "./instructions.js";
 import { ProlificFailCodes } from "./prolificFailCodes.js";
 
 function makeTimeline(jsPsych, blurMonitor) {
@@ -66,6 +66,9 @@ function makeTimeline(jsPsych, blurMonitor) {
 
   // Practice block
   timeline.push(...practice);
+
+  // Transition screen between practice and main experiment
+  timeline.push(makePracticeTransition());
 
   // Experimental mini-blocks
   timeline.push(...experimental);

@@ -9,7 +9,8 @@
 - [x] Check what happens when participant double-clicks without moving the mouse (stores the angle from the click position — valid response)
 - [x] Store firstClickRt in recall data
 - [x] Instructions (replace template placeholder)
-- [ ] Transition screen between practice and main experiment
+- [x] Transition screen between practice and main experiment
 - [ ] Practice feedback
+- [ ] Check load-time behaviour at experiment start (330 trials assembled upfront — may be slow on some browsers)
 - [ ] Consent/debrief content (study-specific wording)
 - [ ] ExperimentSettings.js study info (description, task, duration)
