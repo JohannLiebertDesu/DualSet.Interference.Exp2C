@@ -51,9 +51,11 @@ export const CONDITIONS = [
   { name: "color_6only", primary: "color", nPrimary: 6, nIntrude: 0, nTrials: 20 },
   { name: "color_3plus1", primary: "color", nPrimary: 3, nIntrude: 1, nTrials: 80 },
 
-  // Shared 3+3: 20 trials probing orientation, 20 probing color
-  { name: "mixed_3plus3_probeOrientation", primary: "orientation", nPrimary: 3, nIntrude: 3, nTrials: 20 },
-  { name: "mixed_3plus3_probeColor", primary: "color", nPrimary: 3, nIntrude: 3, nTrials: 20 },
+  // Shared 3+3: "primary" indicates which dimension's items come first in the
+  // array, but probing cycles through all 6 items — both dimensions get probed.
+  // Use the probeDimension field in the data (not the condition name) for analysis.
+  { name: "mixed_3plus3_orientationPrimary", primary: "orientation", nPrimary: 3, nIntrude: 3, nTrials: 20 },
+  { name: "mixed_3plus3_colorPrimary", primary: "color", nPrimary: 3, nIntrude: 3, nTrials: 20 },
 ];
 
 // ── Trial generation ─────────────────────────────────────────────────────

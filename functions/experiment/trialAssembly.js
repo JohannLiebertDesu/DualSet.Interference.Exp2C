@@ -2,7 +2,7 @@
  * Single-trial assembly — converts a trial spec into a sequence of
  * jsPsych trial objects representing the temporal phases of one trial:
  *
- *   1. Fixation    — fixation cross only, 500 ms
+ *   1. Fixation    — fixation cross only, 1000 ms
  *   2. Sample      — stimuli + fixation cross, 150 ms × totalItems
  *   3. Retention   — fixation cross only, 1000 ms
  *   4. Recall      — response wheel + invisible probe at the probed item's

@@ -99,7 +99,6 @@ export function createOrientationWheel(x, y, opts = {}) {
   const {
     outerRadius = Settings.responseWheel.outerRadius,
     innerRadius = Settings.responseWheel.innerRadius,
-    offset = Math.random() * 360,
     numGraduations = 12,
     lightness = Settings.stimuli.lightness,
   } = opts;
@@ -112,7 +111,6 @@ export function createOrientationWheel(x, y, opts = {}) {
     startY: y,
     outerRadius,
     innerRadius,
-    offset,
     drawFunc: (stimulus, canvas, ctx) => {
       const cx = stimulus.currentX;
       const cy = stimulus.currentY;
@@ -154,20 +152,4 @@ export function createOrientationWheel(x, y, opts = {}) {
  */
 export function signedAngleDiff(a, b) {
   return (((a - b + 540) % 360) - 180);
-}
-
-/**
- * Get the hue/orientation angle from a mouse position relative to a wheel centre.
- *
- * @param {number} mouseX    Mouse x in canvas coords.
- * @param {number} mouseY    Mouse y in canvas coords.
- * @param {number} cx        Wheel centre x in canvas coords.
- * @param {number} cy        Wheel centre y in canvas coords.
- * @param {number} offset    Wheel's rotational offset in degrees.
- * @returns {number} Angle in [0, 360).
- */
-function mouseAngle(mouseX, mouseY, cx, cy, offset) {
-  let deg = Math.atan2(mouseY - cy, mouseX - cx) * 180 / Math.PI;
-  if (deg < 0) deg += 360;
-  return (deg + offset + 360) % 360;
 }
