@@ -5,7 +5,7 @@
 - [x] Spatial arrangement for mixed trials: 3+3 interleaved (alternating color/orientation), 3+1 intruder randomly assigned to one of the slots
 - [x] Break screens between mini-blocks
 - [x] Hide mouse cursor during fixation/sample/retention, show only during recall
-- [ ] Change synthetic key for recall trial termination from "a" to something less likely to be pressed accidentally
+- [x] Change synthetic key for recall trial termination from "a" to something less likely to be pressed accidentally (now F24)
 - [ ] Check what happens when participant double-clicks without moving the mouse (does selectedAngle get a valid value?)
 - [ ] Instructions (replace template placeholder)
 - [ ] Practice feedback

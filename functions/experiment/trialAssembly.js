@@ -182,7 +182,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
     blockID,
     practice,
     response_type: "key",
-    choices: ["a"],
+    choices: ["F24"],
     stimuli: [wheel, probe, cross],
     on_start: () => { document.body.style.cursor = "default"; },
 
@@ -192,8 +192,8 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
         updateProbeFromMouse(e); // Reveal probe immediately at click position
       } else {
         // Second click terminates the trial
-        document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
-        document.body.dispatchEvent(new KeyboardEvent("keyup", { key: "a" }));
+        document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "F24" }));
+        document.body.dispatchEvent(new KeyboardEvent("keyup", { key: "F24" }));
       }
     },
 
