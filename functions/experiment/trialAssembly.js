@@ -66,20 +66,23 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
   // Compute ring positions once — reused by both sample and recall phases
   const { positions } = getRingPositions(spec.totalItems, ringRadius);
 
-  // Data fields shared across all phases of this trial
-  const sharedData = {
+  // Full trial data — stored only on the recall phase to keep file size down.
+  // Non-recall phases store only trialID + phase for identification.
+  const sampleDuration = sampleDurationPerItemMs * spec.totalItems;
+  const trialData = {
     condition: spec.condition,
     primaryDimension: spec.primaryDimension,
     totalItems: spec.totalItems,
     nPrimary: spec.nPrimary,
     nIntrude: spec.nIntrude,
+    sampleDuration,
     probeIndex: spec.probeIndex,
     probeDimension: spec.probeDimension,
     probeFeatureValue: spec.probeFeatureValue,
     items: spec.items,
   };
 
-  // 1. Fixation — cross only, 500 ms
+  // 1. Fixation — cross only
   const fixation = makePsychophysicsTrial({
     trialID,
     blockID,
@@ -88,11 +91,10 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
     trial_duration: fixationDurationMs,
     stimuli: [makeFixationCross()],
     on_start: () => { document.body.style.cursor = "none"; },
-    data: { ...sharedData, phase: "fixation" },
+    data: { phase: "fixation" },
   });
 
   // 2. Sample — stimuli + fixation cross, 150 ms × totalItems
-  const sampleDuration = sampleDurationPerItemMs * spec.totalItems;
   const sample = makePsychophysicsTrial({
     trialID,
     blockID,
@@ -104,7 +106,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
       stims.push(makeFixationCross());
       return stims;
     },
-    data: { ...sharedData, phase: "sample", sampleDuration },
+    data: { phase: "sample" },
   });
 
   // 3. Retention — fixation cross only, 1000 ms
@@ -115,7 +117,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
     choices: "NO_KEYS",
     trial_duration: retentionDurationMs,
     stimuli: [makeFixationCross()],
-    data: { ...sharedData, phase: "retention" },
+    data: { phase: "retention" },
   });
 
   // 4. Recall — response wheel + invisible probe at probed item position.
@@ -222,7 +224,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
         : null;
     },
 
-    data: { ...sharedData, phase: "recall" },
+    data: { ...trialData, phase: "recall" },
   });
 
   const sequence = [fixation, sample, retention, recall];
@@ -324,7 +326,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
         if (smiley) smiley.remove();
       },
 
-      data: { ...sharedData, phase: "feedback" },
+      data: { phase: "feedback" },
     });
 
     sequence.push(feedback);

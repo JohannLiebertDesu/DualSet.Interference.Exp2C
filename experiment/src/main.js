@@ -98,6 +98,25 @@ function makeTimeline(jsPsych, blurMonitor) {
  */
 async function start() {
 
+  // Global error handler — catches unhandled errors and displays them on screen
+  // so crashes don't result in a silent blank page. Remove for production if desired.
+  window.onerror = (msg, src, line, col, err) => {
+    document.body.innerHTML = `
+      <div style="padding:2rem; font-family:monospace; color:#c00; background:#fff;">
+        <h2>Experiment Error</h2>
+        <p>${msg}</p>
+        <p>at ${src}:${line}:${col}</p>
+        <pre>${err?.stack || ""}</pre>
+      </div>`;
+  };
+  window.onunhandledrejection = (e) => {
+    document.body.innerHTML = `
+      <div style="padding:2rem; font-family:monospace; color:#c00; background:#fff;">
+        <h2>Experiment Error (Promise)</h2>
+        <pre>${e.reason?.stack || e.reason}</pre>
+      </div>`;
+  };
+
   // The async keyword lets us use await inside the function, which lets us pause until we finish a process.
   // Loading the JATOS script takes time (the browser needs to fetch it from the network)
   await loadJatosScript();

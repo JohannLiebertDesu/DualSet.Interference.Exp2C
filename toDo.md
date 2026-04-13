@@ -13,6 +13,7 @@
 - [x] Practice feedback
 - [x] Final check on error calculation (selectedAngle vs probeFeatureValue, wheelOffset handling per dimension)
 - [ ] Check whether Prolific participant ID is being stored (stampParticipantData in main.js)
+- [ ] Investigate session crash at block 8 — experiment window went black mid-trial, no blur warning shown. Check JATOS result status, session timeout settings, and whether data was saved up to the crash point
 - [x] Check load-time behaviour at experiment start (added preload with 30s timeout for all assets)
 - [x] Consent/debrief content (study-specific wording)
 - [x] ExperimentSettings.js study info (description, task, duration)
