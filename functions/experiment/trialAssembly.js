@@ -129,6 +129,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
 
   let isActive = false;
   let selectedAngle = undefined;
+  let firstClickAngle = undefined;
   let firstClickTime = null;
   let trialStartTime = null;
 
@@ -194,6 +195,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
         isActive = true;
         firstClickTime = performance.now();
         updateProbeFromMouse(e); // Reveal probe immediately at click position
+        firstClickAngle = selectedAngle;
       } else {
         // Second click terminates the trial
         document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "F24" }));
@@ -212,6 +214,9 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
       data.selectedAngle = chosenAngle;
       data.signedError = signedAngleDiff(chosenAngle, spec.probeFeatureValue);
       data.absoluteError = Math.abs(data.signedError);
+      data.firstClickAngle = firstClickAngle;
+      data.firstClickSignedError = signedAngleDiff(firstClickAngle, spec.probeFeatureValue);
+      data.firstClickAbsoluteError = Math.abs(data.firstClickSignedError);
       data.firstClickRt = firstClickTime && trialStartTime
         ? firstClickTime - trialStartTime
         : null;

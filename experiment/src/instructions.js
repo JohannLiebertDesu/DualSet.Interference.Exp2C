@@ -134,7 +134,7 @@ export function makeInstructions() {
         </p>
         <p>
           If you have any questions, use the "Previous" button to re-read
-          the instructions. Otherwise, press "Begin" to start the practice.
+          the instructions. Otherwise, press "Next" to start the practice.
         </p>
       </div>`,
 
@@ -144,7 +144,6 @@ export function makeInstructions() {
     allow_backward: true,
     button_label_previous: "Previous",
     button_label_next: "Next",
-    button_label_finish: "Begin",
   };
 }
 
