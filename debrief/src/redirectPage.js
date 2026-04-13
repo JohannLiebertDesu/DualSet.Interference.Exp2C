@@ -28,6 +28,10 @@ export function makeRedirectTrial(jsPsych) {
         <p>Your data has been saved.</p>
         <p>You will be redirected to Prolific in <strong id="countdown">${COUNTDOWN_SECONDS}</strong> seconds.</p>
         <p style="color: #999; font-size: 0.85em;">Please do not close this window.</p>
+        <p id="fallback-code" style="display: none; color: #999; font-size: 0.85em; margin-top: 1.5em;">
+          If you are not redirected automatically, enter this code on Prolific:
+          <strong style="color: #2c2c2c;">C17L614H</strong>
+        </p>
       </div>
     `,
     on_load: () => {
@@ -60,7 +64,11 @@ export function makeRedirectTrial(jsPsych) {
       const interval = setInterval(() => {
         remaining--;
         if (el) el.textContent = remaining;
-        if (remaining <= 0) clearInterval(interval);
+        if (remaining <= 0) {
+          clearInterval(interval);
+          const fallback = document.getElementById("fallback-code");
+          if (fallback) fallback.style.display = "block";
+        }
       }, 1000);
     },
   };

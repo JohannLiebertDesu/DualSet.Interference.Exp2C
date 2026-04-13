@@ -19,8 +19,8 @@ const PROLIFIC_BASE = "https://app.prolific.com/submissions/complete?cc=";
 
 export const ProlificFailCodes = {
   // Participant was screened out (e.g., screen too small).
-  screenedOut: PROLIFIC_BASE + "YYYYYYYY",
+  screenedOut: PROLIFIC_BASE + "C10CL4CD",
 
   // Participant failed attention checks (too many tab switches).
-  attentionFailed: PROLIFIC_BASE + "ZZZZZZZZ",
+  attentionFailed: PROLIFIC_BASE + "C16PVDBW",
 };

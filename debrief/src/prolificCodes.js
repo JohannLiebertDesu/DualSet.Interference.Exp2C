@@ -14,4 +14,4 @@
 
 const PROLIFIC_BASE = "https://app.prolific.com/submissions/complete?cc=";
 
-export const PROLIFIC_COMPLETED_URL = PROLIFIC_BASE + "XXXXXXXX";
+export const PROLIFIC_COMPLETED_URL = PROLIFIC_BASE + "C17L614H";
