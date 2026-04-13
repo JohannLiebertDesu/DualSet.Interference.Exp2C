@@ -287,9 +287,9 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych,
 
         // Pick smiley based on error magnitude
         let smileyPath;
-        if (absError < 25) {
+        if (absError < 30) {
           smileyPath = "assets/happy.svg";
-        } else if (absError < 50) {
+        } else if (absError < 55) {
           smileyPath = "assets/medium.svg";
         } else {
           smileyPath = "assets/sad.svg";
