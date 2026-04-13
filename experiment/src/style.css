@@ -22,8 +22,8 @@
   overflow: hidden !important;
 }
 
-/* Widen the content container during instructions so side-by-side
-   layouts (text + images) have enough room. */
-.wide-instructions {
-  max-width: 1100px !important;
+/* Override the 720px #jspsych-content width during instructions
+   so side-by-side layouts (text + images) have room. */
+.wide-content {
+  max-width: 85vw !important;
 }

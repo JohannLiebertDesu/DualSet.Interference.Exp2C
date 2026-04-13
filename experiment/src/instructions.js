@@ -37,7 +37,7 @@ export function makeInstructions() {
       </div>`,
 
       // ── Page 2: The stimuli (text + two example images side by side) ──
-      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1100px;">
+      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1500px;">
         <div style="flex: 1;">
           <h2>What You Will See</h2>
           <p>
@@ -61,7 +61,7 @@ export function makeInstructions() {
       </div>`,
 
       // ── Page 3: Trial sequence (text + four step images) ──
-      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1100px;">
+      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1500px;">
         <div style="flex: 1;">
           <h2>Trial Sequence</h2>
           <p>Each trial follows the same sequence:</p>
@@ -89,7 +89,7 @@ export function makeInstructions() {
       </div>`,
 
       // ── Page 4: How to respond (text + two response wheel examples) ──
-      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1100px;">
+      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 85vw;">
         <div style="flex: 1;">
           <h2>How to Respond</h2>
           <p>
@@ -139,7 +139,7 @@ export function makeInstructions() {
       </div>`,
 
     ],
-    css_classes: "wide-instructions",
+    css_classes: "wide-content",
     show_clickable_nav: true,
     allow_backward: true,
     button_label_previous: "Previous",

@@ -12,6 +12,7 @@
 - [x] Transition screen between practice and main experiment
 - [x] Practice feedback
 - [ ] Final check on error calculation (selectedAngle vs probeFeatureValue, wheelOffset handling per dimension)
+- [ ] Check whether Prolific participant ID is being stored (stampParticipantData in main.js)
 - [x] Check load-time behaviour at experiment start (added preload with 30s timeout for all assets)
 - [x] Consent/debrief content (study-specific wording)
 - [x] ExperimentSettings.js study info (description, task, duration)
