@@ -3,7 +3,7 @@
 // The makeTimeline() function is your scene list. 
 // The start() function handles the "which theatre are we in?" logic (JATOS vs local).
 
-import { initJsPsych } from "jspsych";
+import { initJsPsych, ParameterType } from "jspsych";
 import "jspsych/css/jspsych.css";
 
 import PreloadPlugin from "@jspsych/plugin-preload";
@@ -14,6 +14,14 @@ import jsPsychPsychophysics from "@kurokida/jspsych-psychophysics";
 // The plugin defaults canvas_offsetY to 8 to avoid scrollbars, but our
 // .canvas-trial CSS class handles that with overflow: hidden instead.
 jsPsychPsychophysics.info.parameters.canvas_offsetY.default = 0;
+
+// The plugin defines startX/startY/endX/endY as STRING type (because they
+// accept "center"), but we pass numbers. Override to COMPLEX to silence
+// the thousands of "non-string value" warnings that flood the console.
+const posParams = ["startX", "startY", "endX", "endY"];
+for (const p of posParams) {
+  jsPsychPsychophysics.info.parameters.stimuli.nested[p].type = ParameterType.COMPLEX;
+}
 
 import { assembleExperiment } from "../../functions/experiment/experimentAssembly.js";
 
@@ -117,13 +125,6 @@ async function start() {
       </div>`;
   };
 
-  // ── Navigation detector (temporary diagnostic) ──────────────────────────
-  // If the crash is caused by JATOS navigating the page (session timeout,
-  // failed data submission, etc.), this fires before the page unloads.
-  // The console.warn persists if "Preserve log" is enabled in DevTools.
-  window.addEventListener("beforeunload", () => {
-    console.warn("[DEBUG] Page is navigating away — beforeunload fired.");
-  });
 
   // The async keyword lets us use await inside the function, which lets us pause until we finish a process.
   // Loading the JATOS script takes time (the browser needs to fetch it from the network)

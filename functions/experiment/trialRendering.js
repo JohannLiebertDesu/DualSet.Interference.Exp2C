@@ -23,11 +23,23 @@ import { Settings } from "../../ExperimentSettings.js";
  * @param {object} opts[...]             Any other jsPsych/psychophysics trial properties.
  */
 export function makePsychophysicsTrial({ trialID, blockID, practice, ...overrides }) {
+  const userOnFinish = overrides.on_finish;
+  const stimuliRef = Array.isArray(overrides.stimuli) ? overrides.stimuli : null;
+
   return {
     type: jsPsychPsychophysics,
     background_color: Settings.display.trialBackgroundColor,
     css_classes: "canvas-trial",
     ...overrides,
+    on_finish: (data) => {
+      if (userOnFinish) userOnFinish(data);
+      // Sever stim.instance → closure → ctx reference chain so the
+      // detached canvas and its pixel buffer can be garbage-collected.
+      // See docs/canvas-context-leak.md for the full explanation.
+      if (stimuliRef) {
+        for (const stim of stimuliRef) delete stim.instance;
+      }
+    },
     data: {
       trialID,
       blockID,

@@ -66,6 +66,7 @@ export function makeBreakTrial(completedBlocks, totalBlocks, jsPsych, options = 
         // at the end of the experiment overwrites this with the full dataset.
         window.jatos.submitResultData(jsPsych.data.get().json());
       }
+
     },
   };
 }
