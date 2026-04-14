@@ -117,6 +117,14 @@ async function start() {
       </div>`;
   };
 
+  // ── Navigation detector (temporary diagnostic) ──────────────────────────
+  // If the crash is caused by JATOS navigating the page (session timeout,
+  // failed data submission, etc.), this fires before the page unloads.
+  // The console.warn persists if "Preserve log" is enabled in DevTools.
+  window.addEventListener("beforeunload", () => {
+    console.warn("[DEBUG] Page is navigating away — beforeunload fired.");
+  });
+
   // The async keyword lets us use await inside the function, which lets us pause until we finish a process.
   // Loading the JATOS script takes time (the browser needs to fetch it from the network)
   await loadJatosScript();
