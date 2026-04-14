@@ -144,6 +144,46 @@ async function start() {
     // Fires every time the participant switches away from or back to the tab.
     // The blur monitor uses this to count tab-leaves and warn/end accordingly.
     on_interaction_data_update: (data) => blurMonitor.handler(data),
+
+    // ── Canvas context cleanup ─────────────────────────────────────────────
+    // The psychophysics plugin creates a canvas per trial phase and sets
+    // references on the trial object (trial.context, trial.canvas, etc.) and
+    // on stimulus objects (stim.instance). After the trial the canvas is removed
+    // from the DOM, but these JS references prevent it from being garbage-collected.
+    // Over ~1,200 trial phases this exhausts the browser's canvas memory.
+    // See docs/canvas-context-leak.md for the full explanation.
+    //
+    // on_trial_start receives the resolved trial object — the same object the
+    // plugin's trial() method will modify. We capture it here so on_trial_finish
+    // can delete the references the plugin sets on it.
+    on_trial_start: (trial) => {
+      if (trial.type === jsPsychPsychophysics) {
+        jsPsych._lastPsychTrial = trial;
+      } else {
+        jsPsych._lastPsychTrial = null;
+      }
+    },
+    on_trial_finish: () => {
+      const trial = jsPsych._lastPsychTrial;
+      if (!trial) return;
+      jsPsych._lastPsychTrial = null;
+
+      // 1. stim.instance → class prototype → trial() closure → ctx → canvas
+      if (Array.isArray(trial.stimuli)) {
+        for (const stim of trial.stimuli) delete stim.instance;
+      }
+      // 2. Direct references the plugin sets on the trial object:
+      //    context/canvas → the main canvas and its 2D context
+      //    end_trial → closure capturing ctx, canvas, and all class definitions
+      //    getColorNum → closure capturing canvas_for_color (hidden utility canvas)
+      delete trial.context;
+      delete trial.canvas;
+      delete trial.end_trial;
+      delete trial.getColorNum;
+      delete trial.centerX;
+      delete trial.centerY;
+    },
+
     // jsPsych is told here what it should do with the data once the last trial in the timeline completes.
     on_finish: async () => {
       // Check whether the experiment ended early due to a screen or attention failure.
