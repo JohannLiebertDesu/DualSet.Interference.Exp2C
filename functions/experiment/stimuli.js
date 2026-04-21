@@ -1,8 +1,10 @@
 /**
- * Stimulus factories for the cross-set–size experiment.
+ * Stimulus factories for the Exp2B replication.
  *
- * Both return plain stimulus objects consumable by jspsych-psychophysics.
- * All coordinates assume origin_center: true (0, 0 = canvas centre).
+ * Orientation-only experiment: isosceles triangles pointing in a direction.
+ *
+ * Coordinates are ABSOLUTE pixels from the canvas top-left (origin_center: false)
+ * so positions produced by gridPositioning.js can be used directly.
  */
 
 import { Settings } from "../../ExperimentSettings.js";
@@ -13,35 +15,31 @@ import { Settings } from "../../ExperimentSettings.js";
  * Create a jspsych-psychophysics stimulus object for an isosceles triangle
  * drawn at the given position and orientation.
  *
- * The triangle is defined as an isosceles shape whose apex points "up" at 0°
- * and rotates clockwise with increasing orientation (matching standard
- * orientation-report conventions).
+ * The triangle's apex points "up" at 0° (negative y) and rotates clockwise
+ * with increasing orientation, matching standard orientation-report conventions.
  *
- * @param {number} x            Centre x (origin_center coords).
- * @param {number} y            Centre y (origin_center coords).
+ * @param {number} x            Centre x (absolute pixels).
+ * @param {number} y            Centre y (absolute pixels).
  * @param {number} orientationDeg  Orientation in degrees [0, 360).
  * @param {object} [opts]
- * @param {number} [opts.base]       Base width in px.
- * @param {number} [opts.height]     Height (apex to base) in px.
- * @param {string} [opts.fillColor]  Fill colour (defaults from Settings.stimuli).
- * @param {string} [opts.lineColor]  Stroke colour (defaults from Settings.stimuli).
+ * @param {number} [opts.base]       Base width in px (defaults from Settings.stimuli).
+ * @param {number} [opts.height]     Apex-to-base height in px (defaults from Settings.stimuli).
+ * @param {number} [opts.lightness]  OKLCH lightness for fill/outline.
  * @param {number} [opts.lineWidth]
  */
 export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
   const {
-    base = 28,
-    height = 50,
+    base = Settings.stimuli.triangleBase,
+    height = Settings.stimuli.triangleHeight,
     lightness = Settings.stimuli.lightness,
-    chroma = Settings.stimuli.chroma,
     lineWidth = 1,
   } = opts;
 
-  // Pre-compute the three vertices of the isosceles triangle centred at (0, 0)
-  // before rotation.  Apex at top (negative y in canvas coords), base at bottom.
+  // Pre-compute the three vertices of the isosceles triangle centred at its
+  // centroid before rotation. Apex at top (negative y in canvas coords).
   const halfBase = base / 2;
-  const cy = 0; // centroid y-offset: we centre the triangle on its centroid
-  const apexY = -height * (2 / 3); // 2/3 above centroid
-  const baseY = height * (1 / 3);  // 1/3 below centroid
+  const apexY = -height * (2 / 3);
+  const baseY = height * (1 / 3);
   const unrotated = [
     { x: 0, y: apexY },             // apex
     { x: -halfBase, y: baseY },     // base-left
@@ -51,7 +49,7 @@ export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
   return {
     obj_type: "manual",
     stim_type: "oriented_triangle",
-    origin_center: true,
+    origin_center: false,
     startX: x,
     startY: y,
     orientationDeg: orientationDeg,
@@ -59,10 +57,9 @@ export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
     line_color: `oklch(${lightness} 0 0)`,
 
     drawFunc: (stimulus, canvas, ctx) => {
-
       // +90° offset: the unrotated apex points up (negative y), but atan2's
       // 0° is rightward. Adding 90° rotates the apex from up to right,
-      // so the triangle points toward the mouse position.
+      // so the triangle points toward the mouse position during recall.
       const rad = ((stimulus.orientationDeg + 90) * Math.PI) / 180;
       const cosA = Math.cos(rad);
       const sinA = Math.sin(rad);
@@ -91,59 +88,3 @@ export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
   };
 }
 
-// ── Colored patch (circle) ───────────────────────────────────────────────────
-
-/**
- * Create a jspsych-psychophysics stimulus object for a coloured circle.
- *
- * Colour is specified as a hue angle in OKLCH space; lightness and chroma
- * are held constant so that all hues are perceptually equiluminant.
- *
- * @param {number} x          Centre x (origin_center coords).
- * @param {number} y          Centre y (origin_center coords).
- * @param {number} hueDeg     Hue angle in degrees [0, 360).
- * @param {object} [opts]
- * @param {number} [opts.radius]       Radius in px.
- * @param {number} [opts.lightness]    OKLCH lightness (defaults from Settings.stimuli).
- * @param {number} [opts.chroma]       OKLCH chroma (defaults from Settings.stimuli).
- */
-export function makeColorPatchStimulus(x, y, hueDeg, opts = {}) {
-  const {
-    radius = 15,
-    lightness = Settings.stimuli.lightness,
-    chroma = Settings.stimuli.chroma,
-  } = opts;
-
-  return {
-    obj_type: "circle",
-    stim_type: "color_patch",
-    origin_center: true,
-    startX: x,
-    startY: y,
-    radius,
-    fill_color: `oklch(${lightness} ${chroma} ${hueDeg})`,
-    line_color: `oklch(${lightness} ${chroma} ${hueDeg})`,
-  };
-}
-
-// ── Fixation cross ───────────────────────────────────────────────────────────
-
-/**
- * Create a jspsych-psychophysics fixation cross at canvas centre.
- *
- * @param {object} [opts]
- * @param {number} [opts.lineLength]  Arm length in px.
- */
-export function makeFixationCross(opts = {}) {
-  const { lineLength = 12 } = opts;
-
-  return {
-    obj_type: "cross",
-    stim_type: "fixation",
-    origin_center: true,
-    startX: 0,
-    startY: 0,
-    line_length: lineLength,
-    line_color: "oklch(1 0 0)", // White fixation cross
-  };
-}

@@ -35,10 +35,10 @@ import { checkEnrollmentCap } from "../../functions/global/enrollmentCap.js";
 import { assignCondition } from "../../functions/global/conditionAssignment.js";
 import { makeScreenCheck } from "../../functions/global/screenCheck.js";
 import { createBlurMonitor } from "../../functions/global/blurMonitor.js";
-import { makeInstructions, makePracticeTransition } from "./instructions.js";
+import { makeInstructions } from "./instructions.js";
 import { ProlificFailCodes } from "./prolificFailCodes.js";
 
-function makeTimeline(jsPsych, blurMonitor) {
+function makeTimeline(jsPsych, blurMonitor, conditionLabel) {
   const timeline = [];
 
   timeline.push({
@@ -46,11 +46,6 @@ function makeTimeline(jsPsych, blurMonitor) {
     max_load_time: 30000,
     show_progress_bar: true,
     images: [
-      "assets/3_ExampleStimuli.png",
-      "assets/3_1_ExampleStimuli.png",
-      "assets/FixationCross.png",
-      "assets/ColorResponseWheelEmpty.png",
-      "assets/ColorResponseWheelPopulated.png",
       "assets/OrientationResponseWheelEmpty.png",
       "assets/OrientationResponseWheelPopulated.png",
       "assets/happy.svg",
@@ -82,16 +77,10 @@ function makeTimeline(jsPsych, blurMonitor) {
   timeline.push(makeInstructions());
 
   // ── Experiment trials ──
-  const { practice, experimental } = assembleExperiment(jsPsych);
-
-  // Practice block
-  timeline.push(...practice);
-
-  // Transition screen between practice and main experiment
-  timeline.push(makePracticeTransition());
-
-  // Experimental mini-blocks
-  timeline.push(...experimental);
+  // Practice, main mini-blocks, and between-block breaks are all assembled in
+  // order here, interleaved according to the participant's between-subject
+  // condition (Combined-first vs Split-first; Split probing ABBA vs random).
+  timeline.push(...assembleExperiment(jsPsych, conditionLabel));
 
   timeline.push({
     type: HtmlKeyboardResponsePlugin,
@@ -249,9 +238,8 @@ async function start() {
   // pauseExperiment(), resumeExperiment(), and abortExperiment() when needed.
   blurMonitor.init(jsPsych);
 
-  // Trial list is assembled. Nothing runs yet.
-  const timeline = makeTimeline(jsPsych, blurMonitor);
-
+  // The condition must be known before building the timeline (it drives block
+  // order and Split probing rule), so assign it before assembling trials.
   if (inJatos) {
     window.jatos.onLoad(async () => {
       const proceed = await checkEnrollmentCap(Settings.recruitment);
@@ -259,12 +247,14 @@ async function start() {
       stampParticipantData(jsPsych, true);
       const condition = await assignCondition(Settings.recruitment);
       if (condition !== null) jsPsych.data.addProperties({ condition });
+      const timeline = makeTimeline(jsPsych, blurMonitor, condition);
       jsPsych.run(timeline);
     });
   } else {
     stampParticipantData(jsPsych, false);
     const condition = await assignCondition(Settings.recruitment);
     if (condition !== null) jsPsych.data.addProperties({ condition });
+    const timeline = makeTimeline(jsPsych, blurMonitor, condition);
     jsPsych.run(timeline);
   }
 }

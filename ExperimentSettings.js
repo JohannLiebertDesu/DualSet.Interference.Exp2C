@@ -12,10 +12,13 @@ export const Settings = {
     // null = no cap (check is skipped entirely).
     maxParticipants: null,
 
-    // List of condition labels to cycle through, assigned round-robin across participants.
-    // e.g. ['A', 'B'] or ['control', 'treatment'] or ['0deg', '45deg', '90deg'].
-    // null = no condition assignment.
-    conditions: null,
+    // Between-subject counterbalancing (block order only).
+    //   CS → Combined block first, Split block second
+    //   SC → Split first, Combined second
+    // Split blocks always use ABBA probing (right first, then left) — the
+    // random-order variant from Exp2B has been dropped.
+    // Assigned round-robin by conditionAssignment.js.
+    conditions: ["CS", "SC"],
   },
 
   // ── Browser Checks ─────────────────────────────────────────────────────────
@@ -45,53 +48,76 @@ export const Settings = {
   },
 
   // ── Trial Timing ───────────────────────────────────────────────────────────
+  // No fixation cross — Exp2B had none, and Exp2C follows that convention.
+  // Trials start directly with the sample display.
+  //
+  // 200 ms per item (doubled from Exp2B's 100 ms/item). Combined-3 = 600,
+  // Combined-6 = 1200, Split screen (3 items) = 600.
   timing: {
-    fixationDurationMs: 1000,
-    sampleDurationPerItemMs: 150,
-    retentionDurationMs: 1000,
+    sampleDurationPerItemMs: 200,
+    splitISIMs: 1000,            // blank between the two split-screen halves
+    retentionDurationMs: 1000,   // blank between final sample display and probe 1
+    interProbeISIMs: 100,        // blank between the two recall probes (matches Exp2B)
   },
 
   // ── Stimulus Appearance ────────────────────────────────────────────────────
   stimuli: {
-    // Global OKLCH lightness and chroma for all stimulus items.
-    // These are used by the stimulus factories in stimuli.js as defaults.
-    lightness: 0.8,
-    chroma: 0.1,
+    // Global OKLCH lightness and chroma for all stimulus items (orientation triangles
+    // are achromatic, so chroma is unused for triangles; kept for any future use).
+    lightness: 0.2,
+    chroma: 0,
+
+    // Triangle geometry (used by makeOrientedTriangleStimulus in stimuli.js).
+    // Size is derived per trial from the grid cell, but these act as defaults.
+    triangleBase: 28,
+    triangleHeight: 50,
+  },
+
+  // ── Grid layout (ported from Exp2B createGrid.ts) ─────────────────────────
+  // Stimuli are placed on an invisible grid spanning the canvas. Border and
+  // middle-column cells are reserved; selected cells and their neighbours get
+  // marked occupied to prevent overlap. Items are drawn in screen coordinates
+  // (origin_center: false), matching Exp2B's positioning.
+  grid: {
+    numColumns: 13,
+    numRows: 6,
+    adjacencyLimit: 1,     // horizontal / vertical proximity
+    diagonalAdjacency: 1,  // diagonal proximity
+    // Triangle "radius" (centre → vertex) is derived as
+    //   min(cellWidth, cellHeight) / cellRadiusDivisor
+    // to match Exp2B's circle-size heuristic.
+    cellRadiusDivisor: 2.3,
   },
 
   responseWheel: {
-    innerRadius: 40,
-    outerRadius: 63,
+    // Proportional to the probed item's radius, so wheel scale tracks the
+    // grid-cell size chosen for the screen.
+    outerRadiusFactor: 2.7,
+    innerRadiusFactor: 1.836,
+    numGraduations: 12,
   },
 
   // ── Study Information (used by consent pages) ──────────────────────────────
   study: {
-    // What the study examines — shown under "What this study is about".
     description:
-      "This study examines how people remember different visual features, such as colours and orientations, when they appear together in a brief display.",
+      "This study examines how people remember the orientations of briefly presented visual items.",
 
-    // What participants will do — shown directly after the description.
     task:
-      "Your task will be to memorise a set of briefly presented items and then report one of them using a response wheel.",
+      "Your task will be to memorise a set of briefly presented oriented triangles and then reproduce two of them using a response wheel.",
 
-    // Approximate duration — shown under "Duration & compensation".
     duration: "30–40 minutes",
 
-    // Compensation text (non-Prolific). Prolific overrides this automatically.
     compensation: "1 participant subject hour",
 
-    // Risks statement — shown under "Risks". Adjust if your study carries specific risks.
     risks: "No risks or harms are known to be caused by this experiment.",
   },
 
   // ── Eligibility Criteria ───────────────────────────────────────────────────
-  // Active criteria are combined into a readable sentence on the consent page.
-  // Set a criterion to false (or ageRange to null) to omit it.
   eligibility: {
     englishSpeaker: true,
-    ageRange: "18–35",        // null = omit age requirement
-    normalVision: true,       // "normal or corrected-to-normal vision"
-    notColourBlind: false,    // "not colour-blind"
+    ageRange: "18–35",
+    normalVision: true,
+    notColourBlind: false,
   },
 
   // ── Contact Information ────────────────────────────────────────────────────

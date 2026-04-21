@@ -1,36 +1,41 @@
 /**
- * Experiment assembly — builds the full trial pool from the experiment design.
+ * Experiment assembly — builds the full timeline for an Exp2B replication.
  *
- * Takes the condition table and single-trial generator from experimentDesign.js,
- * generates all specs, assigns trialIDs/blockIDs/practice flags, shuffles
- * into mini-blocks, and passes each spec through trialAssembly.js to produce
- * the 4-phase jsPsych trial sequences.
+ * ── Structure (per participant) ───────────────────────────────────────────
  *
- * ── Trial counts (from ExperimentGoal.md) ────────────────────────────────
+ *   Two major blocks (Combined and Split), order set by the between-subject
+ *   condition label passed in (see Settings.recruitment.conditions).
  *
- * Per primary dimension (orientation and color each):
- *   3-only:  20 trials
- *   4-only:  20 trials
- *   6-only:  20 trials
- *   3+1:     80 trials
- *   3+3:     20 trials (shared across dimensions, 40 total)
+ *   For each major block:
+ *     - Pre-practice break screen   (describes the block)
+ *     - Practice mini-block          (12 trials, feedback after each probe)
+ *     - Post-practice break screen
+ *     - 3 × main mini-blocks of 32 trials
+ *         - Between-mini-block break after mini-blocks 1 and 2
+ *     - Between-major-block break    (except after the second major block)
  *
- * Grand total: 320 experimental + 10 practice
- * Structure: 8 mini-blocks × 40 trials, randomly drawn from the pool.
- * Practice: 1 trial per condition (10 total).
+ * The order of trials within each mini-block is shuffled.
+ *
+ * ── Trial totals ──────────────────────────────────────────────────────────
+ *
+ *   Practice per block:  12
+ *   Main per block:      96   (3 × 32)
+ *   Total main:         192   (across 2 major blocks)
+ *   Total practice:      24
  */
 
-import { CONDITIONS, generateTrial } from "./experimentDesign.js";
-import { assembleTrialSequence } from "./trialAssembly.js";
+import HtmlButtonResponsePlugin from "@jspsych/plugin-html-button-response";
 import { makeBreakTrial } from "../global/breakScreen.js";
+import {
+  generateTrial,
+  parseCondition,
+  makeMainSetSizes,
+  makePracticeSetSizes,
+  MAIN_MINIBLOCKS_PER_BLOCK,
+} from "./experimentDesign.js";
+import { assembleTrialSequence } from "./trialAssembly.js";
 
-// ── Shuffling utility ────────────────────────────────────────────────────
-
-/**
- * Fisher–Yates shuffle (in-place).
- * @param {any[]} array
- * @returns {any[]} The same array, shuffled.
- */
+// ── Fisher–Yates shuffle (in-place) ───────────────────────────────────────
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -39,88 +44,135 @@ function shuffle(array) {
   return array;
 }
 
-// ── Spec generation ──────────────────────────────────────────────────────
+// ── Per-block break screens ──────────────────────────────────────────────
 
-/**
- * Generate all trial specs (data only, no jsPsych objects yet).
- *
- * Probe indices are cycled within each condition so every item position
- * is probed equally often.
- *
- * @returns {object[]} Array of 320 trial specs.
- */
-function generateExperimentalSpecs() {
-  const specs = [];
-
-  for (const condition of CONDITIONS) {
-    const totalItems = condition.nPrimary + condition.nIntrude;
-
-    for (let i = 0; i < condition.nTrials; i++) {
-      const probeIndex = i % totalItems;
-      specs.push(generateTrial(condition, probeIndex));
-    }
+function describeBlockType(blockType) {
+  if (blockType === "Combined") {
+    return "In this block, you will see oriented triangles. Sometimes you will see 3 triangles at once, and sometimes 6 at once.";
   }
-
-  return specs;
+  return "In this block, you will first see 3 oriented triangles on the left side of the screen, then 3 on the right side.";
 }
 
-/**
- * Generate practice trial specs (1 per condition, random probe index).
- *
- * @returns {object[]} Array of 10 practice specs.
- */
-function generatePracticeSpecs() {
-  const specs = [];
-
-  for (const condition of CONDITIONS) {
-    const totalItems = condition.nPrimary + condition.nIntrude;
-    const probeIndex = Math.floor(Math.random() * totalItems);
-    specs.push(generateTrial(condition, probeIndex));
+function describeProbeOrder(blockType) {
+  if (blockType === "Combined") {
+    return "After the display, you will be asked to reproduce the orientations of two of the triangles. Which triangles are tested is random.";
   }
-
-  return specs;
+  // Split is always ABBA in Exp2C.
+  return "After the display, you will reproduce two orientations in a fixed order: first one from the right side of the screen, then one from the left side.";
 }
 
-// ── Assembly ─────────────────────────────────────────────────────────────
+function makePrePracticeScreen(blockIndex, totalBlocks, blockType, nPracticeTrials) {
+  return {
+    type: HtmlButtonResponsePlugin,
+    stimulus: `
+      <div class="instructions-page text-left">
+        <h2>Block ${blockIndex} of ${totalBlocks}</h2>
+        <p>${describeBlockType(blockType)}</p>
+        <p>${describeProbeOrder(blockType)}</p>
+        <p>We will start with <strong>${nPracticeTrials} practice trials</strong>. After each response you will see how close you were to the correct answer.</p>
+        <p>Click the button when you're ready to begin.</p>
+      </div>
+    `,
+    choices: ["Start practice"],
+    post_trial_gap: 1000,
+    data: { phase: "pre_practice", blockID: blockIndex, blockType },
+  };
+}
 
-/**
- * Assemble the complete experiment: practice block + experimental mini-blocks.
- *
- * Each spec is expanded into a 4-phase trial sequence (fixation, sample,
- * retention, recall) via assembleTrialSequence.
- *
- * @param {number} [nBlocks=8]         Number of experimental mini-blocks.
- * @param {number} [trialsPerBlock=40] Trials per mini-block.
- * @returns {{ practice: object[], experimental: object[] }}
- *          Each array contains flat jsPsych trial objects (4 per spec).
- */
-export function assembleExperiment(jsPsych, nBlocks = 8, trialsPerBlock = 40) {
-  // Practice: 1 trial per condition, shuffled, blockID = 0
-  const practiceSpecs = shuffle(generatePracticeSpecs());
-  const practice = practiceSpecs.flatMap((spec, i) =>
-    assembleTrialSequence(spec, i, 0, true, jsPsych)
+function makePostPracticeScreen(blockIndex, totalBlocks) {
+  return {
+    type: HtmlButtonResponsePlugin,
+    stimulus: `
+      <div class="instructions-page">
+        <h2>Ready for the main trials</h2>
+        <p>Great — you've finished the practice for block <strong>${blockIndex}</strong> of <strong>${totalBlocks}</strong>. From now on you won't receive feedback after each trial.</p>
+        <p>Click the button when you're ready to continue.</p>
+      </div>
+    `,
+    choices: ["Start main trials"],
+    post_trial_gap: 1000,
+    data: { phase: "post_practice", blockID: blockIndex },
+  };
+}
+
+function makeBetweenMiniBlockScreen(blockIndex, miniIndex, totalMini) {
+  return {
+    type: HtmlButtonResponsePlugin,
+    stimulus: `
+      <div class="instructions-page">
+        <h2>Short break</h2>
+        <p>You've completed mini-block <strong>${miniIndex}</strong> of <strong>${totalMini}</strong> in block ${blockIndex}.</p>
+        <p>Take a few seconds to rest before continuing.</p>
+      </div>
+    `,
+    choices: ["Continue"],
+    enable_button_after: 3000,
+    data: { phase: "between_mini_block", blockID: blockIndex, miniIndex },
+  };
+}
+
+// ── Trial generation ─────────────────────────────────────────────────────
+
+function specsFromSetSizes(setSizes, blockType) {
+  return shuffle(setSizes).map((numItems) =>
+    generateTrial({ blockType, numItems })
   );
+}
 
-  // Experimental: generate all specs, shuffle, split into mini-blocks
-  const experimentalSpecs = shuffle(generateExperimentalSpecs());
-  const experimental = [];
+// ── Main assembly ────────────────────────────────────────────────────────
+
+/**
+ * Build the full experiment timeline for a given between-subject condition.
+ *
+ * @param {object} jsPsych
+ * @param {string} conditionLabel   One of Settings.recruitment.conditions,
+ *                                   either "CS" or "SC". See experimentDesign.js.
+ * @returns {object[]}  jsPsych trial objects (ready to push onto the timeline).
+ */
+export function assembleExperiment(jsPsych, conditionLabel) {
+  const { blockOrder } = parseCondition(conditionLabel);
+  const blockTypes = blockOrder === "CS" ? ["Combined", "Split"] : ["Split", "Combined"];
+  const totalBlocks = blockTypes.length;
+
+  const timeline = [];
   let trialID = 0;
 
-  for (let block = 0; block < nBlocks; block++) {
-    const blockSpecs = experimentalSpecs.slice(
-      block * trialsPerBlock,
-      (block + 1) * trialsPerBlock
+  blockTypes.forEach((blockType, blockIdx) => {
+    const blockIndex = blockIdx + 1;
+
+    // ── Pre-practice ──
+    const practiceSetSizes = makePracticeSetSizes(blockType);
+    timeline.push(
+      makePrePracticeScreen(blockIndex, totalBlocks, blockType, practiceSetSizes.length)
     );
 
-    for (const spec of blockSpecs) {
-      experimental.push(...assembleTrialSequence(spec, trialID++, block + 1, false, jsPsych));
+    // ── Practice mini-block ──
+    const practiceSpecs = specsFromSetSizes(practiceSetSizes, blockType);
+    for (const spec of practiceSpecs) {
+      timeline.push(...assembleTrialSequence(spec, trialID++, 0, true, jsPsych));
     }
 
-    // Break screen after each block except the last
-    if (block < nBlocks - 1) {
-      experimental.push(makeBreakTrial(block + 1, nBlocks, jsPsych));
-    }
-  }
+    // ── Post-practice ──
+    timeline.push(makePostPracticeScreen(blockIndex, totalBlocks));
 
-  return { practice, experimental };
+    // ── Main mini-blocks ──
+    for (let mini = 0; mini < MAIN_MINIBLOCKS_PER_BLOCK; mini++) {
+      const mainSpecs = specsFromSetSizes(makeMainSetSizes(blockType), blockType);
+      for (const spec of mainSpecs) {
+        timeline.push(...assembleTrialSequence(spec, trialID++, blockIndex, false, jsPsych));
+      }
+      if (mini < MAIN_MINIBLOCKS_PER_BLOCK - 1) {
+        timeline.push(
+          makeBetweenMiniBlockScreen(blockIndex, mini + 1, MAIN_MINIBLOCKS_PER_BLOCK)
+        );
+      }
+    }
+
+    // ── Between major blocks ──
+    if (blockIdx < totalBlocks - 1) {
+      timeline.push(makeBreakTrial(blockIndex, totalBlocks, jsPsych));
+    }
+  });
+
+  return timeline;
 }

@@ -1,155 +1,148 @@
 /**
- * Experiment design for the cross-set–size experiment.
+ * Experiment design — Exp2B replication (Exp2C, with triangle stimuli + 200 ms/item).
  *
- * Defines the condition table and a function to generate a single trial
- * specification. Does not handle trial counts, block structure, practice,
- * or rendering — those belong in experimentAssembly.js and trialRendering.js.
+ * ── Within-subject factors ───────────────────────────────────────────────
  *
- * ── Condition structure ──────────────────────────────────────────────────
+ *   blockType: "Combined" | "Split"
+ *     - Combined: All items shown simultaneously. Set size 3 (one side) or 6
+ *       (both sides). Both probed items drawn at random from the display.
+ *     - Split:    3 items shown on the left, brief ISI, then 3 items on the
+ *       right (total 6 items across 2 screens). Items always 6 per Split trial.
  *
- * Each trial has a "primary dimension" (orientation or color) — the dimension
- * that defines the condition and from which most items are drawn.
+ *   numItems: 3 | 6
+ *     - Combined blocks mix 3-item and 6-item trials (half each).
+ *     - Split blocks are always 6-item.
  *
- * Per primary dimension (orientation and color each):
- *   3-only:  3 items of primary dimension
- *   4-only:  4 items of primary dimension
- *   6-only:  6 items of primary dimension
- *   3+1:     3 primary + 1 intruder of the other dimension
- *   3+3:     3 primary + 3 of the other dimension (shared)
+ * ── Between-subject factor (from Settings.recruitment.conditions) ───────
  *
- * The 3+3 condition is shared between dimensions: probing orientation
- * and probing color are separate conditions.
+ *   blockOrder: "CS" (Combined first) | "SC" (Split first)
+ *
+ * Split blocks always probe right → left (ABBA). The Exp2B unpredictable
+ * (random-order) variant has been dropped in Exp2C.
  *
  * ── Probing rule ─────────────────────────────────────────────────────────
  *
- * Each item is equally likely to be probed. The probed item index is
- * passed in by the caller (experimentAssembly.js handles cycling).
+ * Two items are probed sequentially per trial (tested_first, tested_second).
  *
- * ── Feature value sampling ───────────────────────────────────────────────
+ *   Combined / 3 items:  any 2 of the 3 (random).
+ *   Combined / 6 items:  any 2 of the 6 (random).
+ *   Split    / 6 items:  1 right + 1 left, right probed first (ABBA).
  *
- * Within each dimension, feature values (hue or orientation in degrees)
- * maintain a minimum pairwise distance of 30°. Implemented via gap-based
- * sampling in featureSampling.js.
+ * ── Feature values ───────────────────────────────────────────────────────
+ *
+ * Each item's orientation is sampled independently, uniform on [0, 360).
+ * No minimum-distance constraint (matches Exp2B).
  */
 
-import { sampleFeatureValues } from "./featureSampling.js";
+// Parse a between-subject condition label ("CS" or "SC") into its component.
+export function parseCondition(label) {
+  return { blockOrder: label === "SC" ? "SC" : "CS" };
+}
 
-const MIN_DISTANCE_DEG = 30;
+// ── Block-level trial composition ────────────────────────────────────────
 
-// ── Condition definitions ────────────────────────────────────────────────
+/**
+ * Trial counts per mini-block (ported from Exp2B runExperiment.ts).
+ * Combined mini-block: 16× 3-item + 16× 6-item = 32
+ * Split mini-block:    32× 6-item             = 32
+ */
+export const MAIN_TRIALS_PER_MINIBLOCK = 32;
+export const PRACTICE_TRIALS_PER_BLOCK = 12;
+export const MAIN_MINIBLOCKS_PER_BLOCK = 3;
 
-export const CONDITIONS = [
-  // Pure orientation conditions
-  { name: "orientation_3only", primary: "orientation", nPrimary: 3, nIntrude: 0, nTrials: 20 },
-  { name: "orientation_4only", primary: "orientation", nPrimary: 4, nIntrude: 0, nTrials: 20 },
-  { name: "orientation_6only", primary: "orientation", nPrimary: 6, nIntrude: 0, nTrials: 20 },
-  { name: "orientation_3plus1", primary: "orientation", nPrimary: 3, nIntrude: 1, nTrials: 80 },
+/** Compose the trial set sizes for a mini-block. */
+export function makeMainSetSizes(blockType) {
+  if (blockType === "Combined") {
+    return [
+      ...Array(16).fill(3),
+      ...Array(16).fill(6),
+    ];
+  }
+  // Split → always 6 items per trial
+  return Array(MAIN_TRIALS_PER_MINIBLOCK).fill(6);
+}
 
-  // Pure color conditions
-  { name: "color_3only", primary: "color", nPrimary: 3, nIntrude: 0, nTrials: 20 },
-  { name: "color_4only", primary: "color", nPrimary: 4, nIntrude: 0, nTrials: 20 },
-  { name: "color_6only", primary: "color", nPrimary: 6, nIntrude: 0, nTrials: 20 },
-  { name: "color_3plus1", primary: "color", nPrimary: 3, nIntrude: 1, nTrials: 80 },
+export function makePracticeSetSizes(blockType) {
+  if (blockType === "Combined") {
+    return [
+      ...Array(6).fill(3),
+      ...Array(6).fill(6),
+    ];
+  }
+  return Array(PRACTICE_TRIALS_PER_BLOCK).fill(6);
+}
 
-  // Shared 3+3: "primary" indicates which dimension's items come first in the
-  // array, but probing cycles through all 6 items — both dimensions get probed.
-  // Use the probeDimension field in the data (not the condition name) for analysis.
-  { name: "mixed_3plus3_orientationPrimary", primary: "orientation", nPrimary: 3, nIntrude: 3, nTrials: 20 },
-  { name: "mixed_3plus3_colorPrimary", primary: "color", nPrimary: 3, nIntrude: 3, nTrials: 20 },
-];
+// ── Single-trial spec generation ─────────────────────────────────────────
 
-// ── Trial generation ─────────────────────────────────────────────────────
+function sampleOrientations(n) {
+  return Array.from({ length: n }, () => Math.random() * 360);
+}
+
+/**
+ * Pick two distinct random indices in [0, n).
+ */
+function pickTwo(n) {
+  const a = Math.floor(Math.random() * n);
+  let b = Math.floor(Math.random() * (n - 1));
+  if (b >= a) b += 1;
+  return [a, b];
+}
 
 /**
  * Generate a single trial specification.
  *
- * @param {object} condition  A condition definition from CONDITIONS.
- * @param {number} probeIndex Which item index (0-based) to probe.
- * @returns {object} Trial specification with all information needed to render.
+ * The spec is self-contained: a downstream trialAssembly module can expand it
+ * into the sequence of jsPsych trial objects (fixation → sample(s) → retention
+ * → probe1 → probe2) without needing to know the block-level context.
+ *
+ * @param {object} opts
+ * @param {"Combined"|"Split"} opts.blockType
+ * @param {3|6} opts.numItems
+ * @returns {object} Trial spec.
  */
-export function generateTrial(condition, probeIndex) {
-  const totalItems = condition.nPrimary + condition.nIntrude;
-
-  // Items are ordered [primary, primary, ..., intruder, intruder, ...].
-  // If probeIndex falls within the primary range → probe the primary dimension.
-  // Otherwise → probe the opposite dimension (i.e. the intruder's dimension).
-  const probeDimension = probeIndex < condition.nPrimary ? condition.primary
-    : (condition.primary === "orientation" ? "color" : "orientation");
-
-  // Figure out how many items of each dimension we need, regardless of
-  // which one is "primary". If a dimension has 0 items, it gets no values.
-  const nOrientation = condition.primary === "orientation" ? condition.nPrimary : condition.nIntrude;
-  const nColor = condition.primary === "color" ? condition.nPrimary : condition.nIntrude;
-
-  const orientationValues = nOrientation > 0 ? sampleFeatureValues(nOrientation, MIN_DISTANCE_DEG) : [];
-  const colorValues = nColor > 0 ? sampleFeatureValues(nColor, MIN_DISTANCE_DEG) : [];
-
-  // Build item list: primary items first, then intruders.
-  // Array order determines logical structure (probeIndex refers to this order).
-  // ringPosition (assigned below) determines spatial placement on screen.
-  const items = [];
-
-  if (condition.primary === "orientation") {
-    for (let i = 0; i < condition.nPrimary; i++) {
-      items.push({ dimension: "orientation", featureValue: orientationValues[i] });
-    }
-    for (let i = 0; i < condition.nIntrude; i++) {
-      items.push({ dimension: "color", featureValue: colorValues[i] });
-    }
+export function generateTrial({ blockType, numItems }) {
+  // Per-item sides. Drives both spatial placement and (for Split) screen grouping.
+  let sides;
+  if (blockType === "Split") {
+    // 3 left + 3 right. Order matters: first 3 = left screen, next 3 = right screen.
+    sides = [...Array(3).fill("left"), ...Array(3).fill("right")];
+  } else if (numItems === 3) {
+    // Combined / 3: one side chosen randomly so the grid exclusion logic has room.
+    const side = Math.random() < 0.5 ? "left" : "right";
+    sides = Array(3).fill(side);
   } else {
-    for (let i = 0; i < condition.nPrimary; i++) {
-      items.push({ dimension: "color", featureValue: colorValues[i] });
-    }
-    for (let i = 0; i < condition.nIntrude; i++) {
-      items.push({ dimension: "orientation", featureValue: orientationValues[i] });
-    }
+    // Combined / 6: 3 left + 3 right, all shown on one screen.
+    sides = [...Array(3).fill("left"), ...Array(3).fill("right")];
   }
 
-  // Assign ring positions based on condition type.
-  // ringPosition determines which slot on the invisible ring each item occupies,
-  // independent of its index in the items array.
-  if (condition.nIntrude === 0) {
-    // Pure condition (3-only, 4-only, 6-only): randomized positions so that
-    // sequential feature values from the sampling algorithm don't map onto
-    // adjacent ring slots (which would create a visible gradient).
-    const slots = Array.from({ length: totalItems }, (_, i) => i);
-    for (let i = slots.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [slots[i], slots[j]] = [slots[j], slots[i]];
-    }
-    items.forEach((item, i) => { item.ringPosition = slots[i]; });
+  const orientations = sampleOrientations(numItems);
+  const items = sides.map((side, i) => ({
+    side,
+    orientationDeg: orientations[i],
+  }));
 
-  } else if (condition.nPrimary === 3 && condition.nIntrude === 1) {
-    // 3+1: intruder randomly assigned to one of the 4 slots.
-    // Primary items fill the remaining 3 slots.
-    const intruderSlot = Math.floor(Math.random() * totalItems);
-    const primarySlots = [0, 1, 2, 3].filter(s => s !== intruderSlot);
-    for (let i = 0; i < condition.nPrimary; i++) {
-      items[i].ringPosition = primarySlots[i];
-    }
-    items[condition.nPrimary].ringPosition = intruderSlot;
+  // ── Pick the two items to probe ────────────────────────────────────────
+  let probe1Index, probe2Index;
 
-  } else if (condition.nPrimary === 3 && condition.nIntrude === 3) {
-    // 3+3: interleaved (alternating primary, intruder around the ring).
-    // Randomly assign primary to even or odd slots to avoid a fixed pattern.
-    const primaryAtEven = Math.random() < 0.5;
-    for (let i = 0; i < condition.nPrimary; i++) {
-      items[i].ringPosition = primaryAtEven ? i * 2 : i * 2 + 1;
-    }
-    for (let i = 0; i < condition.nIntrude; i++) {
-      items[condition.nPrimary + i].ringPosition = primaryAtEven ? i * 2 + 1 : i * 2;
-    }
+  if (blockType === "Combined") {
+    // Combined: any two items regardless of side (random order).
+    [probe1Index, probe2Index] = pickTwo(numItems);
+  } else {
+    // Split (always ABBA): one item per side, right (most recent) probed first.
+    const leftChoice = Math.floor(Math.random() * 3);          // indices 0–2
+    const rightChoice = 3 + Math.floor(Math.random() * 3);     // indices 3–5
+    probe1Index = rightChoice;
+    probe2Index = leftChoice;
   }
 
   return {
-    condition: condition.name,
-    primaryDimension: condition.primary,
-    totalItems,
-    nPrimary: condition.nPrimary,
-    nIntrude: condition.nIntrude,
-    probeIndex,
-    probeDimension,
-    probeFeatureValue: items[probeIndex].featureValue,
+    blockType,
+    numItems,
+    // Presentation order retained in the spec for clean data columns:
+    // Combined has no canonical order; Split is always ABBA in Exp2C.
+    presentationOrder: blockType === "Split" ? "ABBA" : "random",
     items,
+    probe1Index,
+    probe2Index,
   };
 }
