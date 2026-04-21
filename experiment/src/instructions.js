@@ -1,8 +1,8 @@
 /**
  * Experiment instructions — multi-page with back/next navigation.
  *
- * Covers the task at a high level. Per-block specifics (Combined vs Split,
- * ABBA vs random probe order) are shown on the pre-practice screen that
+ * Covers the task at a high level. Per-block specifics (Combined vs Split
+ * presentation format) are shown on the pre-practice screen that
  * experimentAssembly.js inserts before each block's practice mini-block.
  *
  * LAYOUT CLASSES (defined in styles/common.css):

@@ -3,10 +3,11 @@
  * placeStimuli.ts.
  *
  * The canvas is divided into a numColumns × numRows grid. Border cells and
- * the middle column are pre-occupied (keeps stimuli away from edges and the
- * fixation cross in the centre column). A stimulus claims a random free cell
- * on its requested side (left / right); its neighbours are then marked
- * occupied to prevent overlap.
+ * the middle column are pre-occupied — this keeps stimuli away from the
+ * edges and leaves a clear vertical gap down the centre so items are
+ * unambiguously grouped into left- and right-hemifield clusters. A
+ * stimulus claims a random free cell on its requested side (left / right);
+ * its neighbours are then marked occupied to prevent overlap.
  *
  * Coordinates returned are ABSOLUTE pixels with origin at canvas top-left —
  * matching the jspsych-psychophysics default when `origin_center: false`.

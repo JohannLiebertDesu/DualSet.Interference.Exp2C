@@ -79,8 +79,8 @@ function makeTimeline(jsPsych, blurMonitor, conditionLabel) {
 
   // ── Experiment trials ──
   // Practice, main mini-blocks, and between-block breaks are all assembled in
-  // order here, interleaved according to the participant's between-subject
-  // condition (Combined-first vs Split-first; Split probing ABBA vs random).
+  // order here, in the block order set by the participant's between-subject
+  // condition (CS = Combined first, SC = Split first).
   timeline.push(...assembleExperiment(jsPsych, conditionLabel));
 
   timeline.push({

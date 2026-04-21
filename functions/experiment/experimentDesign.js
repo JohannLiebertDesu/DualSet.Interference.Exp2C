@@ -92,8 +92,9 @@ function pickTwo(n) {
  * Generate a single trial specification.
  *
  * The spec is self-contained: a downstream trialAssembly module can expand it
- * into the sequence of jsPsych trial objects (fixation → sample(s) → retention
- * → probe1 → probe2) without needing to know the block-level context.
+ * into the sequence of jsPsych trial objects (pre-trial blank → sample(s) →
+ * retention → probe1 → inter-probe ISI → probe2) without needing to know the
+ * block-level context.
  *
  * @param {object} opts
  * @param {"Combined"|"Split"} opts.blockType
