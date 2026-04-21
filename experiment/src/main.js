@@ -48,9 +48,6 @@ function makeTimeline(jsPsych, blurMonitor, conditionLabel) {
     images: [
       "assets/OrientationResponseWheelEmpty.png",
       "assets/OrientationResponseWheelPopulated.png",
-      "assets/happy.svg",
-      "assets/medium.svg",
-      "assets/sad.svg",
     ],
   });
 

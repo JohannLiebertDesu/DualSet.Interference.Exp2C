@@ -9,13 +9,13 @@
  *   2. Retention       — blank canvas, 1000 ms
  *   3. Probe 1         — orientation wheel at tested_first item's position.
  *                        Two-click protocol (first click reveals preview,
- *                        second click confirms). (+ feedback if practice.)
+ *                        second click confirms).
  *   4. Inter-probe ISI — blank canvas, 100 ms (matches Exp2B's post_trial_gap).
  *   5. Probe 2         — orientation wheel at tested_second item's position.
- *                        Same protocol as probe 1.       (+ feedback if practice.)
+ *                        Same protocol as probe 1.
  *
- * No fixation cross anywhere — Exp2B did not use one, and this replication
- * follows the same convention.
+ * No fixation cross and no per-trial feedback — Exp2B had neither, and this
+ * replication follows the same convention.
  *
  * Positions are grid-assigned once per trial via assignPositions(); the same
  * per-item {x, y} is reused across sample + probe phases so the wheel sits
@@ -24,30 +24,51 @@
 
 import { Settings } from "../../ExperimentSettings.js";
 import { makePsychophysicsTrial } from "./trialRendering.js";
-import { assignPositions, getStimulusRadius } from "./gridPositioning.js";
+import {
+  assignPositions,
+  getStimulusRadius,
+  getTriangleDimensions,
+} from "./gridPositioning.js";
 import { makeOrientedTriangleStimulus } from "./stimuli.js";
 import { createOrientationWheel, signedAngleDiff } from "./responseWheel.js";
 
 const {
   sampleDurationPerItemMs,
   splitISIMs,
-  retentionDurationMs,
+  retentionMs,
   interProbeISIMs,
 } = Settings.timing;
+
+/**
+ * Retention duration in ms, keyed by trial condition.
+ * Combined-3 > Combined-6 > Split so that total (sample + retention) window
+ * stays constant at 3200 ms across all three conditions. See ExperimentSettings.
+ */
+function retentionForSpec(spec) {
+  if (spec.blockType === "Split") return retentionMs.split;
+  return spec.numItems === 3 ? retentionMs.combined3 : retentionMs.combined6;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 /** Build triangle stimuli at a list of item positions. */
-function buildTriangles(items, positions) {
+function buildTriangles(items, positions, dims) {
   return items.map((item, i) =>
-    makeOrientedTriangleStimulus(positions[i].x, positions[i].y, item.orientationDeg)
+    makeOrientedTriangleStimulus(
+      positions[i].x,
+      positions[i].y,
+      item.orientationDeg,
+      { base: dims.base, height: dims.height }
+    )
   );
 }
 
-// Invisible-probe neutral-grey matches the trial background so the probe
+// Invisible-probe fill matches the trial background so the probe's
 // appearance is hidden until the participant's first click.
-function makeInvisibleTriangle(x, y) {
+function makeInvisibleTriangle(x, y, dims) {
   return makeOrientedTriangleStimulus(x, y, 0, {
+    base: dims.base,
+    height: dims.height,
     lightness: Settings.display.backgroundLightness,
   });
 }
@@ -55,7 +76,10 @@ function makeInvisibleTriangle(x, y) {
 // ── Recall-phase factory ─────────────────────────────────────────────────
 
 /**
- * Build a single recall (probe) phase plus (optionally) a feedback phase.
+ * Build a single recall (probe) phase.
+ *
+ * Practice and main trials are structurally identical — Exp2B gave no
+ * per-trial feedback, so neither does this replication.
  *
  * @param {object} args
  * @param {number} args.trialID
@@ -66,8 +90,9 @@ function makeInvisibleTriangle(x, y) {
  * @param {number} args.probeOrientation     Target orientation in degrees.
  * @param {"tested_first"|"tested_second"} args.probeLabel
  * @param {object} args.trialData            Payload merged into this probe's data row.
+ * @param {object} args.triangleDims         {base, height} for the invisible probe triangle.
  * @param {object} args.jsPsych
- * @returns {object[]}  [recallTrial] or [recallTrial, feedbackTrial] when practice.
+ * @returns {object[]}  Array containing the single recall trial.
  */
 function makeRecallPhase({
   trialID,
@@ -78,6 +103,7 @@ function makeRecallPhase({
   probeOrientation,
   probeLabel,
   trialData,
+  triangleDims,
   jsPsych,
 }) {
   const radius = getStimulusRadius();
@@ -86,8 +112,7 @@ function makeRecallPhase({
   const { lightness } = Settings.stimuli;
 
   const wheel = createOrientationWheel(probePos.x, probePos.y, { outerRadius, innerRadius });
-  const probe = makeInvisibleTriangle(probePos.x, probePos.y);
-  const cross = makeFixationCross();
+  const probe = makeInvisibleTriangle(probePos.x, probePos.y, triangleDims);
 
   let isActive = false;
   let selectedAngle;
@@ -114,7 +139,7 @@ function makeRecallPhase({
     practice,
     response_type: "key",
     choices: ["F24"],
-    stimuli: [wheel, probe, cross],
+    stimuli: [wheel, probe],
     on_start: () => {
       document.body.style.cursor = "default";
       trialStartTime = performance.now();
@@ -164,77 +189,7 @@ function makeRecallPhase({
     },
   });
 
-  if (!practice) return [recall];
-
-  // ── Feedback (practice only) ──────────────────────────────────────────
-  const correctScreenAngle = (probeOrientation * Math.PI) / 180;
-  const frozenProbe = makeInvisibleTriangle(probePos.x, probePos.y);
-  const feedbackWheel = createOrientationWheel(probePos.x, probePos.y, { outerRadius, innerRadius });
-
-  const correctMarker = {
-    obj_type: "manual",
-    origin_center: false,
-    startX: probePos.x,
-    startY: probePos.y,
-    drawFunc: (stimulus, canvas, ctx) => {
-      const cx = stimulus.currentX;
-      const cy = stimulus.currentY;
-      const markerRadius = (outerRadius + innerRadius) / 2;
-      const mx = cx + markerRadius * Math.cos(correctScreenAngle);
-      const my = cy + markerRadius * Math.sin(correctScreenAngle);
-
-      ctx.beginPath();
-      ctx.arc(mx, my, 6, 0, 2 * Math.PI);
-      ctx.fillStyle = "white";
-      ctx.fill();
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    },
-  };
-
-  const feedback = makePsychophysicsTrial({
-    trialID,
-    blockID,
-    practice: true,
-    choices: "NO_KEYS",
-    trial_duration: 1500,
-    stimuli: [feedbackWheel, frozenProbe, correctMarker],
-
-    on_start: () => {
-      const absError = selectedAngle != null
-        ? Math.abs(signedAngleDiff(selectedAngle, probeOrientation))
-        : 180;
-      let smileyPath;
-      if (absError < 30) smileyPath = "assets/happy.svg";
-      else if (absError < 55) smileyPath = "assets/medium.svg";
-      else smileyPath = "assets/sad.svg";
-
-      const img = document.createElement("img");
-      img.src = smileyPath;
-      img.id = "feedback-smiley";
-      img.style.cssText = "position:fixed; top:10%; left:50%; transform:translateX(-50%); height:8vh; z-index:1000;";
-      document.body.appendChild(img);
-    },
-
-    on_load: () => {
-      const live = jsPsych.getCurrentTrial().stimuli[1].instance;
-      if (selectedAngle !== undefined) {
-        live.fill_color = `oklch(${lightness} 0 0)`;
-        live.line_color = `oklch(${lightness} 0 0)`;
-        live.orientationDeg = selectedAngle;
-      }
-    },
-
-    on_finish: () => {
-      const smiley = document.getElementById("feedback-smiley");
-      if (smiley) smiley.remove();
-    },
-
-    data: { phase: "feedback", probeLabel, probeIndex },
-  });
-
-  return [recall, feedback];
+  return [recall];
 }
 
 // ── Full trial assembly ──────────────────────────────────────────────────
@@ -252,6 +207,12 @@ function makeRecallPhase({
 export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych) {
   // Positions are picked once up front so sample and probe phases share them.
   const positions = assignPositions(spec.items.map((it) => it.side));
+
+  // Triangle size derived from the same grid cell as positions, so all
+  // triangles in this trial (sample + probe) match in scale. Area equals
+  // f · π·r² where r is the Exp2B stimulus radius and f is
+  // Settings.stimuli.triangleAreaFraction — see gridPositioning.js.
+  const triangleDims = getTriangleDimensions();
 
   const sampleDuration = sampleDurationPerItemMs * spec.numItems;
   // Combined: all items shown at once for 200 ms × numItems.
@@ -288,7 +249,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
         practice,
         choices: "NO_KEYS",
         trial_duration: sampleDuration,
-        stimuli: () => buildTriangles(spec.items, positions),
+        stimuli: () => buildTriangles(spec.items, positions, triangleDims),
         on_start: hideCursor,
         data: { phase: "sample", samplePart: 1 },
       })
@@ -307,7 +268,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
         practice,
         choices: "NO_KEYS",
         trial_duration: splitHalfDuration,
-        stimuli: () => buildTriangles(leftItems, leftPositions),
+        stimuli: () => buildTriangles(leftItems, leftPositions, triangleDims),
         on_start: hideCursor,
         data: { phase: "sample", samplePart: 1 },
       })
@@ -332,26 +293,28 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
         practice,
         choices: "NO_KEYS",
         trial_duration: splitHalfDuration,
-        stimuli: () => buildTriangles(rightItems, rightPositions),
+        stimuli: () => buildTriangles(rightItems, rightPositions, triangleDims),
         data: { phase: "sample", samplePart: 2 },
       })
     );
   }
 
-  // 2. Retention (blank)
+  // 2. Retention (blank) — duration varies by condition so that the total
+  //    (sample + retention) window stays constant at 3200 ms.
+  const retentionDuration = retentionForSpec(spec);
   sequence.push(
     makePsychophysicsTrial({
       trialID,
       blockID,
       practice,
       choices: "NO_KEYS",
-      trial_duration: retentionDurationMs,
+      trial_duration: retentionDuration,
       stimuli: [],
-      data: { phase: "retention" },
+      data: { phase: "retention", retentionDuration },
     })
   );
 
-  // 3. Probe 1 (+ feedback if practice) — cursor returns to default inside makeRecallPhase
+  // 3. Probe 1 — cursor returns to default inside makeRecallPhase
   sequence.push(
     ...makeRecallPhase({
       trialID,
@@ -362,6 +325,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
       probeOrientation: spec.items[spec.probe1Index].orientationDeg,
       probeLabel: "tested_first",
       trialData,
+      triangleDims,
       jsPsych,
     })
   );
@@ -380,7 +344,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     })
   );
 
-  // 5. Probe 2 (+ feedback if practice)
+  // 5. Probe 2
   sequence.push(
     ...makeRecallPhase({
       trialID,
@@ -391,6 +355,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
       probeOrientation: spec.items[spec.probe2Index].orientationDeg,
       probeLabel: "tested_second",
       trialData,
+      triangleDims,
       jsPsych,
     })
   );

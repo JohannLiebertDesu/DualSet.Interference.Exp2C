@@ -47,6 +47,26 @@ export function getStimulusRadius() {
   return Math.min(cellWidth, cellHeight) / Settings.grid.cellRadiusDivisor;
 }
 
+/**
+ * Triangle dimensions derived from an Exp2B-style radius, preserving the
+ * template aspect ratio. Target area is Settings.stimuli.triangleAreaFraction
+ * of π·r² — setting it to 1.0 reproduces the Exp2B circle's area exactly,
+ * but a value below 1.0 keeps the triangle's apex out of the response wheel.
+ *
+ *   target_area     = f · π · r²
+ *   area_triangle   = (1/2) · base · height,  with height = aspect · base
+ *   ⇒ base² · aspect / 2 = f · π · r²
+ *   ⇒ base = r · √(2π·f / aspect)
+ */
+export function getTriangleDimensions() {
+  const r = getStimulusRadius();
+  const aspect = Settings.stimuli.triangleAspectRatio;
+  const f = Settings.stimuli.triangleAreaFraction;
+  const base = r * Math.sqrt((2 * Math.PI * f) / aspect);
+  const height = base * aspect;
+  return { base, height };
+}
+
 // ── Grid construction ───────────────────────────────────────────────────
 
 /**

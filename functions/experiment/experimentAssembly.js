@@ -8,7 +8,7 @@
  *
  *   For each major block:
  *     - Pre-practice break screen   (describes the block)
- *     - Practice mini-block          (12 trials, feedback after each probe)
+ *     - Practice mini-block          (12 trials; no per-trial feedback, matches Exp2B)
  *     - Post-practice break screen
  *     - 3 × main mini-blocks of 32 trials
  *         - Between-mini-block break after mini-blocks 1 and 2
@@ -69,7 +69,7 @@ function makePrePracticeScreen(blockIndex, totalBlocks, blockType, nPracticeTria
         <h2>Block ${blockIndex} of ${totalBlocks}</h2>
         <p>${describeBlockType(blockType)}</p>
         <p>${describeProbeOrder(blockType)}</p>
-        <p>We will start with <strong>${nPracticeTrials} practice trials</strong>. After each response you will see how close you were to the correct answer.</p>
+        <p>We will start with <strong>${nPracticeTrials} practice trials</strong> to familiarise you with the task. The main trials begin right after.</p>
         <p>Click the button when you're ready to begin.</p>
       </div>
     `,
@@ -85,7 +85,7 @@ function makePostPracticeScreen(blockIndex, totalBlocks) {
     stimulus: `
       <div class="instructions-page">
         <h2>Ready for the main trials</h2>
-        <p>Great — you've finished the practice for block <strong>${blockIndex}</strong> of <strong>${totalBlocks}</strong>. From now on you won't receive feedback after each trial.</p>
+        <p>Great — you've finished the practice for block <strong>${blockIndex}</strong> of <strong>${totalBlocks}</strong>. The main trials begin now.</p>
         <p>Click the button when you're ready to continue.</p>
       </div>
     `,

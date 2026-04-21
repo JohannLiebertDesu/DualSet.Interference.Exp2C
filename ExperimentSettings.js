@@ -36,10 +36,8 @@ export const Settings = {
 
   // ── Display ─────────────────────────────────────────────────────────────────
   display: {
-    // Background colour for experiment/practice trials, specified as OKLCH components.
-    // Standard mid-grey is the convention in vision science — neutral adaptation state
-    // for luminance contrast. Lightness 0.6, zero chroma = perceptually uniform grey.
-    backgroundLightness: 0.6,
+    // White background — matches Exp2B's #FFFFFF and the Markov et al. (2019) setup.
+    backgroundLightness: 1,
     backgroundChroma: 0,
     backgroundHue: 0,
     get trialBackgroundColor() {
@@ -53,24 +51,41 @@ export const Settings = {
   //
   // 200 ms per item (doubled from Exp2B's 100 ms/item). Combined-3 = 600,
   // Combined-6 = 1200, Split screen (3 items) = 600.
+  //
+  // Retention is condition-dependent so that each trial's total
+  // (sample + retention) encoding window is constant at 3200 ms:
+  //   Combined-3: 600 + 2600 = 3200
+  //   Combined-6: 1200 + 2000 = 3200
+  //   Split:      600 + 1000 + 600 + 1000 = 3200  (sample1 + ISI + sample2 + retention)
   timing: {
     sampleDurationPerItemMs: 200,
     splitISIMs: 1000,            // blank between the two split-screen halves
-    retentionDurationMs: 1000,   // blank between final sample display and probe 1
+    retentionMs: {
+      combined3: 2600,
+      combined6: 2000,
+      split: 1000,
+    },
     interProbeISIMs: 100,        // blank between the two recall probes (matches Exp2B)
   },
 
   // ── Stimulus Appearance ────────────────────────────────────────────────────
   stimuli: {
-    // Global OKLCH lightness and chroma for all stimulus items (orientation triangles
-    // are achromatic, so chroma is unused for triangles; kept for any future use).
-    lightness: 0.2,
+    // Black stimuli on white background (matches Exp2B).
+    lightness: 0,
     chroma: 0,
 
-    // Triangle geometry (used by makeOrientedTriangleStimulus in stimuli.js).
-    // Size is derived per trial from the grid cell, but these act as defaults.
-    triangleBase: 28,
-    triangleHeight: 50,
+    // Triangle aspect ratio (height/base). Only the ratio matters —
+    // absolute size is derived per trial from the grid-cell radius so that
+    // the triangle's area equals the area of the equivalent Exp2B circle
+    // (π · r²). See getTriangleDimensions() in gridPositioning.js.
+    triangleAspectRatio: 50 / 28,
+
+    // Fraction of π·r² used as the triangle's target area. 1.0 exactly
+    // matches the Exp2B circle's area, but because the isosceles triangle is
+    // tall, that causes the apex to poke into the orientation wheel's
+    // annulus during recall. Dropping to ~0.7 shrinks the apex to roughly
+    // the wheel's inner edge while keeping the triangle visibly "pointy".
+    triangleAreaFraction: 0.6,
   },
 
   // ── Grid layout (ported from Exp2B createGrid.ts) ─────────────────────────

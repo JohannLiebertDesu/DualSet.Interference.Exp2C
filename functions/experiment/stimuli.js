@@ -18,22 +18,30 @@ import { Settings } from "../../ExperimentSettings.js";
  * The triangle's apex points "up" at 0° (negative y) and rotates clockwise
  * with increasing orientation, matching standard orientation-report conventions.
  *
+ * Base and height are required and typically come from getTriangleDimensions()
+ * in gridPositioning.js, which derives them from the Exp2B-style grid radius
+ * so that the triangle's area matches a circle of the same radius.
+ *
  * @param {number} x            Centre x (absolute pixels).
  * @param {number} y            Centre y (absolute pixels).
  * @param {number} orientationDeg  Orientation in degrees [0, 360).
- * @param {object} [opts]
- * @param {number} [opts.base]       Base width in px (defaults from Settings.stimuli).
- * @param {number} [opts.height]     Apex-to-base height in px (defaults from Settings.stimuli).
+ * @param {object} opts
+ * @param {number} opts.base         Base width in px.
+ * @param {number} opts.height       Apex-to-base height in px.
  * @param {number} [opts.lightness]  OKLCH lightness for fill/outline.
  * @param {number} [opts.lineWidth]
  */
 export function makeOrientedTriangleStimulus(x, y, orientationDeg, opts = {}) {
   const {
-    base = Settings.stimuli.triangleBase,
-    height = Settings.stimuli.triangleHeight,
+    base,
+    height,
     lightness = Settings.stimuli.lightness,
     lineWidth = 1,
   } = opts;
+
+  if (base == null || height == null) {
+    throw new Error("makeOrientedTriangleStimulus: base and height are required.");
+  }
 
   // Pre-compute the three vertices of the isosceles triangle centred at its
   // centroid before rotation. Apex at top (negative y in canvas coords).

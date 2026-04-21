@@ -94,7 +94,7 @@ export function makeInstructions() {
         <ul>
           <li>The triangles appear only <strong>very briefly</strong> — stay focused and keep your gaze near the centre of the screen.</li>
           <li>Please do <strong>not</strong> leave the browser tab during the experiment.</li>
-          <li>Each block starts with a short <strong>practice mini-block</strong> with feedback,
+          <li>Each block starts with a short <strong>practice mini-block</strong>,
               followed by several mini-blocks of main trials with breaks in between.</li>
         </ul>
       </div>`,
