@@ -227,7 +227,6 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
   // Per-trial data stamped on probe rows (trial-level context for analysis).
   const trialData = {
     blockType: spec.blockType,
-    presentationOrder: spec.presentationOrder,
     numItems: spec.numItems,
     sampleDurationTotal: spec.blockType === "Split"
       ? splitHalfDuration * 2 + splitISIMs

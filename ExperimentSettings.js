@@ -31,7 +31,7 @@ export const Settings = {
     // Maximum number of times a participant can leave the browser tab (blur events)
     // before the experiment ends with "failed_attention_check".
     // null = no blur tracking.
-    maxBlurs: 2,
+    maxBlurs: null,
   },
 
   // ── Display ─────────────────────────────────────────────────────────────────

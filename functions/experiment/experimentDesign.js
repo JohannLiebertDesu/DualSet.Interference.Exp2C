@@ -138,9 +138,6 @@ export function generateTrial({ blockType, numItems }) {
   return {
     blockType,
     numItems,
-    // Presentation order retained in the spec for clean data columns:
-    // Combined has no canonical order; Split is always ABBA in Exp2C.
-    presentationOrder: blockType === "Split" ? "ABBA" : "random",
     items,
     probe1Index,
     probe2Index,
