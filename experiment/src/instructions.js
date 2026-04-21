@@ -46,7 +46,6 @@ export function makeInstructions() {
             <li>The screen goes blank for a short delay.</li>
             <li>A <strong>response wheel</strong> appears at the location of one of the triangles.</li>
           </ol>
-          <p>Please look at the centre of the screen while you wait for the triangles to appear.</p>
         </div>
         <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem; align-items: center;">
           <p style="margin: 0; font-weight: bold;">1. Stimulus display</p>
@@ -113,7 +112,7 @@ export function makeInstructions() {
       `<div class="instructions-page text-left">
         <h2>Important</h2>
         <ul>
-          <li>The triangles appear only <strong>very briefly</strong> — stay focused and keep your gaze near the centre of the screen.</li>
+          <li>The triangles appear only <strong>very briefly</strong> — try to stay focused.</li>
           <li>Please do <strong>not</strong> leave the browser tab during the experiment.</li>
           <li>Each block starts with a short <strong>practice mini-block</strong>,
               followed by several mini-blocks of main trials with breaks in between.</li>
