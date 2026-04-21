@@ -269,7 +269,6 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
         choices: "NO_KEYS",
         trial_duration: sampleDuration,
         stimuli: () => buildTriangles(spec.items, positions, triangleDims),
-        on_start: hideCursor,
         data: { phase: "sample", samplePart: 1 },
       })
     );
@@ -288,7 +287,6 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
         choices: "NO_KEYS",
         trial_duration: splitHalfDuration,
         stimuli: () => buildTriangles(leftItems, leftPositions, triangleDims),
-        on_start: hideCursor,
         data: { phase: "sample", samplePart: 1 },
       })
     );
