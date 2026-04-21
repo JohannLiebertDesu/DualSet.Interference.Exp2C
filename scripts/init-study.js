@@ -21,7 +21,7 @@ import { fileURLToPath } from "url";
 // import.meta.url = the URL of this script file (e.g. file:///…/scripts/init-study.js)
 // fileURLToPath: converts that URL to a plain path (…/scripts/init-study.js)
 // dirname: strips the filename, leaving just the directory (…/scripts/)
-// resolve(__dirname, ".."): go one level up → the project root (jspsych8-template/)
+// resolve(__dirname, ".."): go one level up → the project root
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 
