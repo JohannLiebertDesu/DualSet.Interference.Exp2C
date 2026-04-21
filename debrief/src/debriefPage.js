@@ -19,41 +19,31 @@ export function debriefPageHTML(settings) {
       <section class="consent-section">
         <h2>What was this study about?</h2>
         <p>
-          In this experiment, we investigated how visual working memory handles
-          different types of features — specifically, colours and orientations —
-          when they appear on separate objects in a brief display.
-        </p>
-        <p>
-          Previous research has debated whether memory for different feature
-          dimensions (like colour and orientation) relies on shared or independent
-          resources. Some studies found that adding items of one type does not
-          interfere with memory for the other type, suggesting independence. Other
-          studies found partial interference when features belong to spatially
-          separated objects, suggesting some shared capacity.
-        </p>
-        <p>
-          By varying the number and mix of colour and orientation items across
-          trials, we aim to measure whether and how much cross-dimensional
-          interference occurs in an online setting.
+          We are studying how visual working memory handles items that are
+          presented either all at once or as two separate sets. In one block
+          you saw all the triangles together; in the other you saw three on
+          the left first, then three on the right. Comparing these formats
+          tells us whether memory treats six items as a single pool or as
+          two separable groups — a question known as
+          <em>dual-set interference</em>.
         </p>
       </section>
 
       <section class="consent-section">
         <h2>Why does this matter?</h2>
         <p>
-          Understanding the structure of visual working memory helps us build
-          more accurate models of how the mind organises and maintains
-          information. These findings can inform clinical diagnostics — for
-          example, detecting subtle cognitive changes in neurological conditions
-          — as well as the design of visual displays and interfaces.
+          Visual working memory is central to everyday tasks like following
+          a conversation or keeping track of what you see. Understanding how
+          its capacity is organised helps refine psychological theories of
+          memory and informs applied work on display design and clinical
+          assessment.
         </p>
       </section>
 
       <section class="consent-section">
         <h2>Further reading</h2>
         <ul>
-          <li>Wang, B., Cao, X., Theeuwes, J., Olivers, C. N., & Wang, Z. (2017). Separate capacities for storing different features in visual working memory. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 43</em>(2), 226–236.</li>
-          <li>Markov, Y. A., Tiurina, N. A., & Utochkin, I. S. (2019). Different features are stored independently in visual working memory but mediated by object-based representations. <em>Acta Psychologica, 197</em>, 52–63.</li>
+          <li>Oberauer, K., &amp; Lin, H.-Y. (2017). An interference model of visual working memory. <em>Psychological Review, 124</em>(1), 21–59.</li>
         </ul>
       </section>
 

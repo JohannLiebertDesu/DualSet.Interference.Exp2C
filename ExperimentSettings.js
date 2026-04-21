@@ -58,6 +58,9 @@ export const Settings = {
   //   Combined-6: 1200 + 2000 = 3200
   //   Split:      600 + 1000 + 600 + 1000 = 3200  (sample1 + ISI + sample2 + retention)
   timing: {
+    preTrialBlankMs: 1000,       // blank before each trial's sample display, so
+                                 // the participant doesn't jump straight from
+                                 // probe-2 of trial N into the display of trial N+1
     sampleDurationPerItemMs: 200,
     splitISIMs: 1000,            // blank between the two split-screen halves
     retentionMs: {

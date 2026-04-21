@@ -107,9 +107,9 @@ export function generateTrial({ blockType, numItems }) {
     // 3 left + 3 right. Order matters: first 3 = left screen, next 3 = right screen.
     sides = [...Array(3).fill("left"), ...Array(3).fill("right")];
   } else if (numItems === 3) {
-    // Combined / 3: one side chosen randomly so the grid exclusion logic has room.
-    const side = Math.random() < 0.5 ? "left" : "right";
-    sides = Array(3).fill(side);
+    // Combined / 3: always on the left (matches Exp2B, which hardcoded
+    // `side: "left"` in Presentation.ts for 3-item trials).
+    sides = Array(3).fill("left");
   } else {
     // Combined / 6: 3 left + 3 right, all shown on one screen.
     sides = [...Array(3).fill("left"), ...Array(3).fill("right")];

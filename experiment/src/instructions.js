@@ -32,24 +32,62 @@ export function makeInstructions() {
       </div>`,
 
       // ── Page 2: Stimulus + trial sequence ──
-      `<div class="instructions-page text-left">
-        <h2>What you will see</h2>
-        <p>
-          On each trial, a set of <strong>oriented triangles</strong> will briefly appear
-          on screen. Each triangle points in a particular direction. Your task is to
-          remember all of them.
-        </p>
-        <p>Each trial follows the same general sequence:</p>
-        <ol>
-          <li>The triangles appear <strong>briefly</strong>. Try to remember their orientations.</li>
-          <li>The screen goes blank for a short delay.</li>
-          <li>A <strong>response wheel</strong> appears at the location of one of the triangles.</li>
-          <li>A <strong>second wheel</strong> then appears at the location of another triangle.</li>
-        </ol>
-        <p>Please look at the centre of the screen while you wait for the triangles to appear.</p>
+      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1500px;">
+        <div style="flex: 1;">
+          <h2>What you will see</h2>
+          <p>
+            On each trial, a set of <strong>oriented triangles</strong> will briefly
+            appear on screen. Each triangle points in a particular direction.
+            Your task is to remember all of them.
+          </p>
+          <p>Each trial follows the same general sequence:</p>
+          <ol>
+            <li>The triangles appear <strong>briefly</strong>. Try to remember their orientations.</li>
+            <li>The screen goes blank for a short delay.</li>
+            <li>A <strong>response wheel</strong> appears at the location of one of the triangles.</li>
+          </ol>
+          <p>Please look at the centre of the screen while you wait for the triangles to appear.</p>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem; align-items: center;">
+          <p style="margin: 0; font-weight: bold;">1. Stimulus display</p>
+          <img src="assets/Combined6.png" alt="Stimulus display — oriented triangles" style="max-height: 18vh; border-radius: 6px;" />
+          <p style="margin: 0.3rem 0 0; font-weight: bold;">2. Blank delay</p>
+          <img src="assets/Blank.png" alt="Blank retention interval" style="max-height: 18vh; border-radius: 6px;" />
+          <p style="margin: 0.3rem 0 0; font-weight: bold;">3. Response wheel</p>
+          <img src="assets/ResponseWheelEmpty1.png" alt="Empty orientation response wheel" style="max-height: 18vh; border-radius: 6px;" />
+        </div>
       </div>`,
 
-      // ── Page 3: Two block types ──
+      // ── Page 3: How to respond ──
+      `<div class="instructions-page text-left" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; max-width: 1500px;">
+        <div style="flex: 1;">
+          <h2>How to respond</h2>
+          <p>
+            Two of the triangles will be tested on each trial. For each test, a
+            black wheel appears at the location where a triangle had been.
+          </p>
+          <ol>
+            <li><strong>Click once</strong> on the wheel to make your initial response. A triangle preview appears pointing in the direction you clicked.</li>
+            <li><strong>Move the mouse</strong> to adjust the triangle's orientation. The preview updates in real time.</li>
+            <li><strong>Click again</strong> to confirm your response.</li>
+          </ol>
+          <p>
+            Once you confirm the first response, a second wheel appears at another triangle's location. Accuracy matters more than speed — there is no time limit on your responses.
+          </p>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem; align-items: center;">
+          <p style="margin: 0; font-weight: bold;">1st probe — wheel appears</p>
+          <img src="assets/ResponseWheelEmpty1.png" alt="First empty response wheel" style="max-height: 14vh; border-radius: 6px;" />
+          <p style="margin: 0.3rem 0 0; font-weight: bold;">1st probe — your response</p>
+          <img src="assets/ResponseWheelFilled1.png" alt="First response wheel with triangle response" style="max-height: 14vh; border-radius: 6px;" />
+          <p style="margin: 0.3rem 0 0; font-weight: bold;">2nd probe — wheel appears</p>
+          <img src="assets/ResponseWheelEmpty2.png" alt="Second empty response wheel" style="max-height: 14vh; border-radius: 6px;" />
+          <p style="margin: 0.3rem 0 0; font-weight: bold;">2nd probe — your response</p>
+          <img src="assets/ResponseWheelFilled2.png" alt="Second response wheel with triangle response" style="max-height: 14vh; border-radius: 6px;" />
+        </div>
+      </div>`,
+
+      // ── Page 4: Two block types ──
       `<div class="instructions-page text-left">
         <h2>Two kinds of blocks</h2>
         <p>
@@ -68,23 +106,6 @@ export function makeInstructions() {
         </ul>
         <p>
           You will receive more specific instructions at the start of each block.
-        </p>
-      </div>`,
-
-      // ── Page 4: How to respond ──
-      `<div class="instructions-page text-left">
-        <h2>How to respond</h2>
-        <p>
-          Two of the triangles will be tested on each trial. For each test, a
-          black wheel appears at the location where a triangle had been.
-        </p>
-        <ol>
-          <li><strong>Click once</strong> on the wheel to make your initial response. A triangle preview appears pointing in the direction you clicked.</li>
-          <li><strong>Move the mouse</strong> to adjust the triangle's orientation. The preview updates in real time.</li>
-          <li><strong>Click again</strong> to confirm your response.</li>
-        </ol>
-        <p>
-          Accuracy matters more than speed — there is no time limit on your response.
         </p>
       </div>`,
 

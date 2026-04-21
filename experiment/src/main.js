@@ -46,8 +46,12 @@ function makeTimeline(jsPsych, blurMonitor, conditionLabel) {
     max_load_time: 30000,
     show_progress_bar: true,
     images: [
-      "assets/OrientationResponseWheelEmpty.png",
-      "assets/OrientationResponseWheelPopulated.png",
+      "assets/Combined6.png",
+      "assets/Blank.png",
+      "assets/ResponseWheelEmpty1.png",
+      "assets/ResponseWheelFilled1.png",
+      "assets/ResponseWheelEmpty2.png",
+      "assets/ResponseWheelFilled2.png",
     ],
   });
 

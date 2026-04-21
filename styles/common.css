@@ -212,6 +212,13 @@
   margin-bottom: 0.4em;
 }
 
+/* Default border for any instruction image — makes light stimuli visible
+   against the off-white page background. Override per-image with inline
+   styles if needed. */
+.instructions-page img {
+  border: 1px solid #000;
+}
+
 /* Full-page slide image (PPTX export, GIF, etc.) — fills most of the viewport */
 .instructions-page img.instructions-slide {
   max-width: 100%;

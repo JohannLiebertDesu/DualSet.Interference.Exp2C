@@ -2,16 +2,20 @@
  * Single-trial assembly — converts a trial spec into a sequence of jsPsych
  * trial objects representing the temporal phases of one logical trial:
  *
- *   1. Sample phase(s) — triangles on a blank canvas. 200 ms per item.
+ *   1. Pre-trial blank — 1000 ms; separates this trial from the previous
+ *                        probe response so the sample display doesn't appear
+ *                        the instant the participant clicks.
+ *   2. Sample phase(s) — triangles on a blank canvas. 200 ms per item.
  *                        Combined: 1 sample phase with all items.
  *                        Split:    2 sample phases (left then right),
  *                                  separated by a 1000 ms blank ISI.
- *   2. Retention       — blank canvas, 1000 ms
- *   3. Probe 1         — orientation wheel at tested_first item's position.
+ *   3. Retention       — blank canvas, condition-dependent (see
+ *                        Settings.timing.retentionMs).
+ *   4. Probe 1         — orientation wheel at tested_first item's position.
  *                        Two-click protocol (first click reveals preview,
  *                        second click confirms).
- *   4. Inter-probe ISI — blank canvas, 100 ms (matches Exp2B's post_trial_gap).
- *   5. Probe 2         — orientation wheel at tested_second item's position.
+ *   5. Inter-probe ISI — blank canvas, 100 ms (matches Exp2B's post_trial_gap).
+ *   6. Probe 2         — orientation wheel at tested_second item's position.
  *                        Same protocol as probe 1.
  *
  * No fixation cross and no per-trial feedback — Exp2B had neither, and this
@@ -33,6 +37,7 @@ import { makeOrientedTriangleStimulus } from "./stimuli.js";
 import { createOrientationWheel, signedAngleDiff } from "./responseWheel.js";
 
 const {
+  preTrialBlankMs,
   sampleDurationPerItemMs,
   splitISIMs,
   retentionMs,
@@ -240,7 +245,22 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     document.body.style.cursor = "none";
   };
 
-  // 1. Sample phase(s)
+  // 1. Pre-trial blank — buffer between the previous probe response and this
+  //    trial's sample display. Also hides the cursor for the rest of the trial.
+  sequence.push(
+    makePsychophysicsTrial({
+      trialID,
+      blockID,
+      practice,
+      choices: "NO_KEYS",
+      trial_duration: preTrialBlankMs,
+      stimuli: [],
+      on_start: hideCursor,
+      data: { phase: "pre_trial_blank" },
+    })
+  );
+
+  // 2. Sample phase(s)
   if (spec.blockType === "Combined") {
     sequence.push(
       makePsychophysicsTrial({
@@ -299,7 +319,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     );
   }
 
-  // 2. Retention (blank) — duration varies by condition so that the total
+  // 3. Retention (blank) — duration varies by condition so that the total
   //    (sample + retention) window stays constant at 3200 ms.
   const retentionDuration = retentionForSpec(spec);
   sequence.push(
@@ -314,7 +334,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     })
   );
 
-  // 3. Probe 1 — cursor returns to default inside makeRecallPhase
+  // 4. Probe 1 — cursor returns to default inside makeRecallPhase
   sequence.push(
     ...makeRecallPhase({
       trialID,
@@ -330,7 +350,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     })
   );
 
-  // 4. Inter-probe ISI (blank)
+  // 5. Inter-probe ISI (blank)
   sequence.push(
     makePsychophysicsTrial({
       trialID,
@@ -344,7 +364,7 @@ export function assembleTrialSequence(spec, trialID, blockID, practice, jsPsych)
     })
   );
 
-  // 5. Probe 2
+  // 6. Probe 2
   sequence.push(
     ...makeRecallPhase({
       trialID,
